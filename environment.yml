@@ -1,0 +1,21 @@
+# Shared conda environment for all experiments.
+#   Create:  conda env create -f environment.yml
+#   Update:  conda env update -n experiments -f environment.yml
+#
+# torch/torchvision come from PyPI (the pytorch conda channel is no longer maintained).
+# The default PyPI wheels are cross-platform:
+#   - Linux:   CUDA-enabled build (falls back to CPU without an NVIDIA GPU)
+#   - macOS:   CPU + Apple Silicon MPS
+#   - Windows: CPU only. For CUDA on Windows, reinstall from the PyTorch index, e.g.
+#              pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
+name: experiments
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - numpy
+  - matplotlib
+  - pip:
+      - torch
+      - torchvision

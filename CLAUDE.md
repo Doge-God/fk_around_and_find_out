@@ -10,10 +10,10 @@ the only shared resource is the `datasets/` download cache.
 fk_around_and_find_out/
 ├── CLAUDE.md
 ├── .gitignore
+├── environment.yml        # the shared `experiments` conda env
 ├── datasets/              # shared download cache, git-ignored (e.g. datasets/mnist/)
 ├── CnnExperimentOne/
 │   ├── README.md          # what is being tested, how to run, findings
-│   ├── requirements.txt   # this experiment's dependencies only
 │   ├── network.py
 │   ├── experiment.py      # entry point
 │   ├── graph_utils.py
@@ -40,11 +40,23 @@ fk_around_and_find_out/
   data loading, training loops), copy it into each folder. Do not refactor it into a shared
   module. Changing one experiment must never break another.
 - **Run from inside the folder.** Use relative imports/paths that assume the working
-  directory is the experiment folder, e.g. `cd CnnExperimentOne && python experiment.py`.
+  directory is the experiment folder, e.g.
+  `cd CnnExperimentOne && conda run -n experiments python experiment.py`.
 - **Results stay local.** Write generated images, plots and logs to that experiment's
   `results/` folder (create it if missing). Never write output outside the experiment folder
   (downloads into `datasets/` are the only exception).
-- **Per-experiment dependencies.** List them in the experiment's own `requirements.txt`.
+- **One shared environment.** All experiments run in the `experiments` conda env
+  (`conda activate experiments`, or `conda run -n experiments python experiment.py`).
+  Don't create per-experiment envs or venvs. The env is defined by the root
+  `environment.yml` (`conda env create -f environment.yml` on a new machine,
+  `conda env update -n experiments -f environment.yml` after changes). If an experiment
+  needs a new package, add it to `environment.yml` (conda-forge where possible, the `pip:`
+  section otherwise), update the env, and list it in the experiment's `requirements.txt`
+  for reference. Keep `environment.yml` cross-platform: no OS-specific builds, CUDA
+  index URLs or pinned build strings.
+- **pyenv gotcha.** On this machine pyenv shims can shadow the conda env's `python`/`pip`,
+  even under `conda run`. Check with `which python`; if it isn't under `.../envs/experiments/`,
+  call the interpreter directly: `~/anaconda3/envs/experiments/bin/python experiment.py`.
 - **Keep it quick.** Favour simple, readable scripts over abstractions, configs or frameworks.
   No tests or packaging unless an experiment specifically calls for them.
 - **Document briefly.** Each experiment gets a short `README.md`: the question/hypothesis,
