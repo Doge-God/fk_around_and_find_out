@@ -15,9 +15,14 @@ fk_around_and_find_out/
 ├── CnnExperimentOne/
 │   ├── README.md          # what is being tested, how to run, findings
 │   ├── network.py
-│   ├── experiment.py      # entry point
+│   ├── exp_01.py          # entry point, one per ablation
+│   ├── exp_02.py
 │   ├── graph_utils.py
-│   └── results/           # generated plots / images
+│   └── results/
+│       ├── exp_01/
+│       │   └── seed_42/   # generated plots / images / logs for this script and seed
+│       └── exp_02/
+│           └── seed_42/
 └── <NextExperiment>/
     └── ...
 ```
@@ -41,12 +46,17 @@ fk_around_and_find_out/
   module. Changing one experiment must never break another.
 - **Run from inside the folder.** Use relative imports/paths that assume the working
   directory is the experiment folder, e.g.
-  `cd CnnExperimentOne && conda run -n experiments python experiment.py`.
+  `cd CnnExperimentOne && conda run -n experiments python exp_01.py`.
 - **Results stay local.** Write generated images, plots and logs to that experiment's
   `results/` folder (create it if missing). Never write output outside the experiment folder
   (downloads into `datasets/` are the only exception).
+- **One script per ablation.** Each ablation gets its own script (`exp_01.py`, `exp_02.py`, ...),
+  with its settings as constants in the file rather than command-line options. Every script takes
+  a `--seed` int argument, defaulting to 42.
+- **Results folder structure.** Each run writes to `results/<script name>/seed_<seed>/`, e.g.
+  `results/exp_01/seed_42/`, so runs with different seeds never overwrite each other.
 - **One shared environment.** All experiments run in the `experiments` conda env
-  (`conda activate experiments`, or `conda run -n experiments python experiment.py`).
+  (`conda activate experiments`, or `conda run -n experiments python exp_01.py`).
   Don't create per-experiment envs or venvs. The env is defined by the root
   `environment.yml` (`conda env create -f environment.yml` on a new machine,
   `conda env update -n experiments -f environment.yml` after changes). If an experiment
@@ -56,7 +66,7 @@ fk_around_and_find_out/
   index URLs or pinned build strings.
 - **pyenv gotcha.** On this machine pyenv shims can shadow the conda env's `python`/`pip`,
   even under `conda run`. Check with `which python`; if it isn't under `.../envs/experiments/`,
-  call the interpreter directly: `~/anaconda3/envs/experiments/bin/python experiment.py`.
+  call the interpreter directly: `~/anaconda3/envs/experiments/bin/python exp_01.py`.
 - **Keep it quick.** Favour simple, readable scripts over abstractions, configs or frameworks.
   No tests or packaging unless an experiment specifically calls for them.
 - **Document briefly.** Each experiment gets a short `README.md`: the question/hypothesis,

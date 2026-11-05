@@ -16,6 +16,7 @@ dependencies:
   - pip
   - numpy
   - matplotlib
+  - tensorboard
   - pip:
       - torch
       - torchvision
