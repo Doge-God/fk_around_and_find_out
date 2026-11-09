@@ -1,0 +1,6 @@
+# Only the training code goes into the image. results/ alone is tens of GB.
+*
+!exp_*.py
+!training_procedure.py
+!networks.py
+!util.py

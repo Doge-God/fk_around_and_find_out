@@ -1,0 +1,155 @@
+Downloading cifar10 dataset...
+Train set size: 50000, Test set size: 10000
+/app/util.py:96: UserWarning: Specified kernel cache directory could not be created! This disables kernel caching. Specified directory is //.cache/torch/kernels. This warning will appear only once per process. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/cuda/jit_utils.cpp:1503.)
+  effective_rank = torch.special.entr(p).sum().exp().item()
+epoch  1/150  train loss 1.7544 acc 0.3540  test loss 1.5033 acc 0.4514
+epoch  2/150  train loss 1.2632 acc 0.5411  test loss 1.1285 acc 0.6011
+epoch  3/150  train loss 0.9824 acc 0.6492  test loss 0.9906 acc 0.6548
+epoch  4/150  train loss 0.8060 acc 0.7166  test loss 0.9066 acc 0.6882
+epoch  5/150  train loss 0.6729 acc 0.7666  test loss 0.7456 acc 0.7467
+epoch  6/150  train loss 0.5778 acc 0.7990  test loss 0.6872 acc 0.7698
+epoch  7/150  train loss 0.5013 acc 0.8271  test loss 0.5296 acc 0.8279
+epoch  8/150  train loss 0.4412 acc 0.8472  test loss 0.5560 acc 0.8152
+epoch  9/150  train loss 0.4014 acc 0.8611  test loss 0.5458 acc 0.8209
+epoch 10/150  train loss 0.3624 acc 0.8742  test loss 0.4379 acc 0.8566
+epoch 11/150  train loss 0.3295 acc 0.8851  test loss 0.4214 acc 0.8605
+epoch 12/150  train loss 0.3024 acc 0.8952  test loss 0.3748 acc 0.8748
+epoch 13/150  train loss 0.2780 acc 0.9029  test loss 0.3912 acc 0.8727
+epoch 14/150  train loss 0.2519 acc 0.9117  test loss 0.3858 acc 0.8766
+epoch 15/150  train loss 0.2354 acc 0.9186  test loss 0.4743 acc 0.8556
+epoch 16/150  train loss 0.2177 acc 0.9237  test loss 0.3976 acc 0.8783
+epoch 17/150  train loss 0.2036 acc 0.9284  test loss 0.3603 acc 0.8873
+epoch 18/150  train loss 0.1886 acc 0.9339  test loss 0.3504 acc 0.8903
+epoch 19/150  train loss 0.1755 acc 0.9382  test loss 0.3875 acc 0.8804
+epoch 20/150  train loss 0.1599 acc 0.9434  test loss 0.3308 acc 0.8961
+epoch 21/150  train loss 1.0798 acc 0.6233  test loss 2.8907 acc 0.2287  (blurred)
+epoch 22/150  train loss 0.7786 acc 0.7274  test loss 4.9940 acc 0.2316  (blurred)
+epoch 23/150  train loss 0.6732 acc 0.7636  test loss 5.6656 acc 0.1715  (blurred)
+epoch 24/150  train loss 0.6096 acc 0.7854  test loss 7.1403 acc 0.1760  (blurred)
+epoch 25/150  train loss 0.5552 acc 0.8066  test loss 7.0367 acc 0.1440  (blurred)
+epoch 26/150  train loss 0.5080 acc 0.8210  test loss 7.3041 acc 0.1314  (blurred)
+epoch 27/150  train loss 0.4748 acc 0.8344  test loss 8.2522 acc 0.1214  (blurred)
+epoch 28/150  train loss 0.4395 acc 0.8460  test loss 15.2684 acc 0.1012  (blurred)
+epoch 29/150  train loss 0.4157 acc 0.8537  test loss 10.1817 acc 0.1321  (blurred)
+epoch 30/150  train loss 0.3785 acc 0.8654  test loss 17.5659 acc 0.1010  (blurred)
+epoch 31/150  train loss 0.2405 acc 0.9157  test loss 0.3290 acc 0.8945
+epoch 32/150  train loss 0.1654 acc 0.9408  test loss 0.3185 acc 0.9028
+epoch 33/150  train loss 0.1336 acc 0.9531  test loss 0.3111 acc 0.9101
+epoch 34/150  train loss 0.1202 acc 0.9575  test loss 0.3116 acc 0.9062
+epoch 35/150  train loss 0.1084 acc 0.9611  test loss 0.3488 acc 0.9031
+epoch 36/150  train loss 0.0979 acc 0.9645  test loss 0.3024 acc 0.9126
+epoch 37/150  train loss 0.0933 acc 0.9672  test loss 0.3714 acc 0.9013
+epoch 38/150  train loss 0.0876 acc 0.9687  test loss 0.3250 acc 0.9118
+epoch 39/150  train loss 0.0846 acc 0.9699  test loss 0.3349 acc 0.9128
+epoch 40/150  train loss 0.0759 acc 0.9724  test loss 0.3519 acc 0.9072
+epoch 41/150  train loss 0.0746 acc 0.9738  test loss 0.3447 acc 0.9099
+epoch 42/150  train loss 0.0685 acc 0.9754  test loss 0.3502 acc 0.9106
+epoch 43/150  train loss 0.0684 acc 0.9758  test loss 0.3819 acc 0.9077
+epoch 44/150  train loss 0.0600 acc 0.9788  test loss 0.3670 acc 0.9129
+epoch 45/150  train loss 0.0610 acc 0.9784  test loss 0.3598 acc 0.9147
+epoch 46/150  train loss 0.0593 acc 0.9793  test loss 0.3698 acc 0.9114
+epoch 47/150  train loss 0.0583 acc 0.9798  test loss 0.3421 acc 0.9161
+epoch 48/150  train loss 0.0512 acc 0.9823  test loss 0.3487 acc 0.9170
+epoch 49/150  train loss 0.0509 acc 0.9826  test loss 0.3438 acc 0.9183
+epoch 50/150  train loss 0.0488 acc 0.9826  test loss 0.3662 acc 0.9177
+epoch 51/150  train loss 0.0510 acc 0.9823  test loss 0.3742 acc 0.9149
+epoch 52/150  train loss 0.0464 acc 0.9842  test loss 0.3789 acc 0.9175
+epoch 53/150  train loss 0.0483 acc 0.9830  test loss 0.4046 acc 0.9137
+epoch 54/150  train loss 0.0409 acc 0.9860  test loss 0.3953 acc 0.9129
+epoch 55/150  train loss 0.0431 acc 0.9843  test loss 0.3744 acc 0.9186
+epoch 56/150  train loss 0.0454 acc 0.9842  test loss 0.3603 acc 0.9204
+epoch 57/150  train loss 0.0409 acc 0.9855  test loss 0.3651 acc 0.9164
+epoch 58/150  train loss 0.0403 acc 0.9861  test loss 0.3658 acc 0.9215
+epoch 59/150  train loss 0.0363 acc 0.9871  test loss 0.3719 acc 0.9181
+epoch 60/150  train loss 0.0396 acc 0.9865  test loss 0.3932 acc 0.9198
+epoch 61/150  train loss 0.0383 acc 0.9871  test loss 0.3742 acc 0.9177
+epoch 62/150  train loss 0.0361 acc 0.9869  test loss 0.4330 acc 0.9126
+epoch 63/150  train loss 0.0368 acc 0.9875  test loss 0.3890 acc 0.9176
+epoch 64/150  train loss 0.0376 acc 0.9875  test loss 0.3915 acc 0.9166
+epoch 65/150  train loss 0.0321 acc 0.9891  test loss 0.4202 acc 0.9159
+epoch 66/150  train loss 0.0364 acc 0.9876  test loss 0.3864 acc 0.9190
+epoch 67/150  train loss 0.0323 acc 0.9892  test loss 0.3777 acc 0.9225
+epoch 68/150  train loss 0.0321 acc 0.9885  test loss 0.4042 acc 0.9171
+epoch 69/150  train loss 0.0332 acc 0.9887  test loss 0.3986 acc 0.9168
+epoch 70/150  train loss 0.0299 acc 0.9898  test loss 0.3987 acc 0.9238
+epoch 71/150  train loss 0.0298 acc 0.9899  test loss 0.4435 acc 0.9125
+epoch 72/150  train loss 0.0279 acc 0.9905  test loss 0.4128 acc 0.9202
+epoch 73/150  train loss 0.0291 acc 0.9901  test loss 0.4271 acc 0.9195
+epoch 74/150  train loss 0.0308 acc 0.9893  test loss 0.4565 acc 0.9154
+epoch 75/150  train loss 0.0301 acc 0.9898  test loss 0.4035 acc 0.9195
+epoch 76/150  train loss 0.0287 acc 0.9906  test loss 0.3934 acc 0.9228
+epoch 77/150  train loss 0.0268 acc 0.9906  test loss 0.4038 acc 0.9182
+epoch 78/150  train loss 0.0272 acc 0.9906  test loss 0.3991 acc 0.9223
+epoch 79/150  train loss 0.0285 acc 0.9900  test loss 0.4314 acc 0.9204
+epoch 80/150  train loss 0.0267 acc 0.9911  test loss 0.4353 acc 0.9132
+epoch 81/150  train loss 0.0236 acc 0.9914  test loss 0.4545 acc 0.9222
+epoch 82/150  train loss 0.0280 acc 0.9902  test loss 0.4234 acc 0.9188
+epoch 83/150  train loss 0.0264 acc 0.9911  test loss 0.3897 acc 0.9269
+epoch 84/150  train loss 0.0250 acc 0.9918  test loss 0.4036 acc 0.9225
+epoch 85/150  train loss 0.0236 acc 0.9916  test loss 0.4230 acc 0.9209
+epoch 86/150  train loss 0.0255 acc 0.9911  test loss 0.4211 acc 0.9200
+epoch 87/150  train loss 0.0220 acc 0.9927  test loss 0.4581 acc 0.9183
+epoch 88/150  train loss 0.0231 acc 0.9922  test loss 0.4341 acc 0.9192
+epoch 89/150  train loss 0.0234 acc 0.9919  test loss 0.4409 acc 0.9197
+epoch 90/150  train loss 0.0239 acc 0.9921  test loss 0.4051 acc 0.9266
+epoch 91/150  train loss 0.0248 acc 0.9915  test loss 0.4489 acc 0.9243
+epoch 92/150  train loss 0.0222 acc 0.9924  test loss 0.4944 acc 0.9165
+epoch 93/150  train loss 0.0231 acc 0.9921  test loss 0.4319 acc 0.9255
+epoch 94/150  train loss 0.0224 acc 0.9922  test loss 0.4415 acc 0.9208
+epoch 95/150  train loss 0.0212 acc 0.9932  test loss 0.4294 acc 0.9245
+epoch 96/150  train loss 0.0181 acc 0.9939  test loss 0.4388 acc 0.9229
+epoch 97/150  train loss 0.0218 acc 0.9928  test loss 0.4500 acc 0.9217
+epoch 98/150  train loss 0.0252 acc 0.9913  test loss 0.4203 acc 0.9245
+epoch 99/150  train loss 0.0235 acc 0.9922  test loss 0.4362 acc 0.9234
+epoch 100/150  train loss 0.0203 acc 0.9927  test loss 0.4200 acc 0.9267
+epoch 101/150  train loss 0.0176 acc 0.9943  test loss 0.4472 acc 0.9253
+epoch 102/150  train loss 0.0178 acc 0.9936  test loss 0.4497 acc 0.9233
+epoch 103/150  train loss 0.0239 acc 0.9913  test loss 0.4489 acc 0.9253
+epoch 104/150  train loss 0.0224 acc 0.9927  test loss 0.4612 acc 0.9215
+epoch 105/150  train loss 0.0187 acc 0.9938  test loss 0.4721 acc 0.9215
+epoch 106/150  train loss 0.0196 acc 0.9935  test loss 0.4382 acc 0.9231
+epoch 107/150  train loss 0.0182 acc 0.9940  test loss 0.4354 acc 0.9224
+epoch 108/150  train loss 0.0176 acc 0.9936  test loss 0.4309 acc 0.9230
+epoch 109/150  train loss 0.0217 acc 0.9929  test loss 0.4644 acc 0.9243
+epoch 110/150  train loss 0.0169 acc 0.9943  test loss 0.4764 acc 0.9209
+epoch 111/150  train loss 0.0197 acc 0.9935  test loss 0.4705 acc 0.9215
+epoch 112/150  train loss 0.0190 acc 0.9934  test loss 0.4612 acc 0.9230
+epoch 113/150  train loss 0.0185 acc 0.9938  test loss 0.4520 acc 0.9236
+epoch 114/150  train loss 0.0172 acc 0.9941  test loss 0.4482 acc 0.9253
+epoch 115/150  train loss 0.0200 acc 0.9936  test loss 0.4228 acc 0.9251
+epoch 116/150  train loss 0.0156 acc 0.9949  test loss 0.4699 acc 0.9243
+epoch 117/150  train loss 0.0210 acc 0.9926  test loss 0.4930 acc 0.9205
+epoch 118/150  train loss 0.0171 acc 0.9942  test loss 0.4576 acc 0.9253
+epoch 119/150  train loss 0.0179 acc 0.9942  test loss 0.4534 acc 0.9265
+epoch 120/150  train loss 0.0164 acc 0.9946  test loss 0.4390 acc 0.9273
+epoch 121/150  train loss 0.0158 acc 0.9949  test loss 0.4498 acc 0.9248
+epoch 122/150  train loss 0.0172 acc 0.9944  test loss 0.5351 acc 0.9115
+epoch 123/150  train loss 0.0178 acc 0.9939  test loss 0.4662 acc 0.9261
+epoch 124/150  train loss 0.0158 acc 0.9947  test loss 0.4534 acc 0.9259
+epoch 125/150  train loss 0.0178 acc 0.9936  test loss 0.4808 acc 0.9226
+epoch 126/150  train loss 0.0153 acc 0.9951  test loss 0.4826 acc 0.9233
+epoch 127/150  train loss 0.0188 acc 0.9941  test loss 0.4693 acc 0.9216
+epoch 128/150  train loss 0.0171 acc 0.9945  test loss 0.4681 acc 0.9215
+epoch 129/150  train loss 0.0154 acc 0.9948  test loss 0.4926 acc 0.9232
+epoch 130/150  train loss 0.0165 acc 0.9946  test loss 0.4809 acc 0.9227
+epoch 131/150  train loss 0.0178 acc 0.9938  test loss 0.4727 acc 0.9241
+epoch 132/150  train loss 0.0145 acc 0.9956  test loss 0.5041 acc 0.9231
+epoch 133/150  train loss 0.0162 acc 0.9948  test loss 0.4402 acc 0.9283
+epoch 134/150  train loss 0.0164 acc 0.9946  test loss 0.4628 acc 0.9211
+epoch 135/150  train loss 0.0162 acc 0.9947  test loss 0.4677 acc 0.9228
+epoch 136/150  train loss 0.0128 acc 0.9959  test loss 0.4778 acc 0.9290
+epoch 137/150  train loss 0.0147 acc 0.9945  test loss 0.4844 acc 0.9272
+epoch 138/150  train loss 0.0136 acc 0.9956  test loss 0.4660 acc 0.9272
+epoch 139/150  train loss 0.0160 acc 0.9948  test loss 0.4737 acc 0.9268
+epoch 140/150  train loss 0.0153 acc 0.9951  test loss 0.4842 acc 0.9258
+epoch 141/150  train loss 0.0146 acc 0.9952  test loss 0.4961 acc 0.9213
+epoch 142/150  train loss 0.0146 acc 0.9949  test loss 0.4794 acc 0.9266
+epoch 143/150  train loss 0.0121 acc 0.9959  test loss 0.4841 acc 0.9249
+epoch 144/150  train loss 0.0162 acc 0.9948  test loss 0.5110 acc 0.9257
+epoch 145/150  train loss 0.0139 acc 0.9954  test loss 0.4823 acc 0.9282
+epoch 146/150  train loss 0.0154 acc 0.9951  test loss 0.4850 acc 0.9221
+epoch 147/150  train loss 0.0157 acc 0.9948  test loss 0.4684 acc 0.9278
+epoch 148/150  train loss 0.0144 acc 0.9952  test loss 0.4563 acc 0.9273
+epoch 149/150  train loss 0.0123 acc 0.9960  test loss 0.4533 acc 0.9303
+epoch 150/150  train loss 0.0148 acc 0.9950  test loss 0.5186 acc 0.9246
+logs written to /workspace/output/exp_11/seed_46/tensorboard

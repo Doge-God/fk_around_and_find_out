@@ -5,11 +5,21 @@ while a ResNet-18 trains, and does a blur deficit in the first epochs change the
 
 ## Setup
 - **Model:** CIFAR-style ResNet-18 (3x3 first convolution, no max pool).
-- **Training:** batch size 128, 200 epochs, no weight decay, constant learning rate.
-  - `exp_01`: Adam, learning rate 0.005.
-  - `exp_02`: SGD, learning rate 0.01, momentum 0.9.
-  - `exp_03`: as `exp_01`, with Gaussian blur (sigma 2.4 pixels) on training images for the first 10 epochs.
-  - `exp_04`: as `exp_02`, with the same blur.
+- **Training:** batch size 128, no weight decay, constant learning rate. Adam uses learning rate 0.005; SGD uses
+  learning rate 0.01 with momentum 0.9. The blur is Gaussian, sigma 2.4 pixels, on training images only. Epoch numbers
+  count from 1, and a blur window "a-b" covers epochs a+1 to b.
+
+| | Adam | SGD | Blur window | Epochs | Checkpoints |
+|---|---|---|---|---|---|
+| Baseline | `exp_01` | `exp_02` | none | 200 | every 10 epochs |
+| Blur at the start | `exp_03` | `exp_04` | 0-10 | 200 | every 10 epochs |
+| Window shifted by 5 | `exp_05` | `exp_06` | 5-15 | 150 | final only |
+| Shifted by 10 | `exp_07` | `exp_08` | 10-20 | 150 | final only |
+| Shifted by 15 | `exp_09` | `exp_10` | 15-25 | 150 | final only |
+| Shifted by 20 | `exp_11` | `exp_12` | 20-30 | 150 | final only |
+| Longer, from the start | `exp_13` | `exp_14` | 0-15 | 150 | final only |
+| Longer, from the start | `exp_15` | `exp_16` | 0-20 | 150 | final only |
+
 - **Augmentation:** random translations of up to 4 pixels and random horizontal flips, on training images only.
 - **Fisher information:** trace of the true Fisher per layer, where the 10 "layers" are the first convolution,
   the 8 residual blocks and the classifier, with labels sampled from the model's predictions.
@@ -21,8 +31,11 @@ while a ResNet-18 trains, and does a blur deficit in the first epochs change the
   - effective rank = exp(-sum p_i log p_i).
   - stable rank delta = the smallest k whose top-k values of p cover at least 99% of the total.
 
-Fisher values are totals per layer, not normalised by parameter count, so compare layers of different
-sizes with care. They use batch norm's running statistics. These are still at their initial values at
+The logs hold Fisher totals per layer. `graph_training.py` plots them divided by each layer's parameter count
+(`FISHER_PER_PARAM`), since the layers range from 1,856 parameters (first convolution) to 4.7 million (last block).
+The Fisher panel leaves out the first convolution and the classifier (`FISHER_EXCLUDED_LAYERS`), whose much higher
+values per parameter would flatten the residual blocks.
+They use batch norm's running statistics. These are still at their initial values at
 step 0, so that point is less comparable with the rest of the run.
 
 Train accuracy is measured on augmented images during training, so it can sit below test accuracy.
@@ -31,26 +44,79 @@ The blur applies to training images only. Test accuracy, Fisher information and 
 measured on sharp images, so during the blur they describe images the model is not training on.
 
 ## Files
-- `exp_01.py`: settings and training loop for the baseline ResNet-18 on CIFAR-10, with Adam.
-- `exp_02.py`: the same baseline, with SGD.
-- `exp_03.py`: `exp_01` with the blur deficit.
-- `exp_04.py`: `exp_02` with the blur deficit.
+- `experiments.md`: what each experiment does, in one table.
+- `exp_01.py` ... `exp_16.py`: one per row of the table above, holding that experiment's settings (optimizer, epochs,
+  checkpoints, blur window).
+- `training_procedure.py`: the training loop they all call, and the settings they share (batch size, augmentation, blur
+  sigma, how often Fisher and weight norms are logged).
 - `networks.py`: the MLP and ResNet-18.
 - `util.py`: data loading, Fisher information, weight norm and representation ranks.
 - `graph_training.py`: plots a TensorBoard run.
+- `graph_fisher_seeds.py`: plots Fisher information for every experiment (rows) and seed (columns), with the y-axis shared by the Adam rows and by the SGD rows (`Y_SCALE_GROUPS`).
+- `graph_fisher_all.py`: the same grid for all 16 experiments with blur windows shaded, plus a final column of train/test accuracy over the 5 seeds (mean, SD shading, test accuracy labelled at epoch 150), with a dashed line for the final networks on blurred test images.
+- `eval_blurred.py`: tests each run's final saved network on sharp and blurred test images, and prints the mean and SD over seeds.
+- `hpc_run.py`: runs a sweep of experiments and seeds on the HPC, collects the results and plots them.
+- `Dockerfile`: the training image `hpc_run.py` builds and submits.
 
 ## Run
 ```
 python exp_01.py --seed 42                     # logs to results/exp_01/seed_42/tensorboard/, replacing the previous run with that seed
 tensorboard --logdir results/exp_01           # one run per seed; see the "fisher information", "weight norm" and "representation" sections
 python graph_training.py exp_01 --seed 42     # -> results/exp_01/seed_42/graph_training.png
+python graph_fisher_seeds.py                  # -> results/graph_fisher_seeds.png, all experiments and seeds,
+                                              #    and graph_fisher_seeds_epoch_140_150.png, zoomed to epochs 140-150
+python eval_blurred.py                        # -> results/eval_blurred.csv, final networks on sharp and blurred test images
+python graph_fisher_all.py                    # -> results/graph_fisher_all.png, exp_01-exp_16 with aggregated accuracy (needs eval_blurred.csv)
 ```
 `--seed` defaults to 42 in both scripts.
-Each run also saves the network's `state_dict` every 10 epochs to `results/exp_01/seed_42/checkpoints/epoch_XXX.pt`
-(about 45 MB each, git-ignored). A repeated run with the same seed replaces them.
-The other experiments run the same way: replace `exp_01` with `exp_02`, `exp_03` or `exp_04` in the commands above.
+Each run also saves the network's `state_dict` to `results/exp_01/seed_42/checkpoints/epoch_XXX.pt` (about 45 MB each,
+git-ignored): every 10 epochs for `exp_01`-`exp_04`, and only after the last epoch (`epoch_150.pt`) for `exp_05`-`exp_16`.
+A repeated run with the same seed replaces them.
+The other experiments run the same way: replace `exp_01` with any of `exp_02`-`exp_16` in the commands above.
+
+## Run on the HPC
+```
+python hpc_run.py            # exp_11 and exp_12, seeds 42-46, 10 runs on the HPC
+python hpc_run.py --local    # this PC also takes one run at a time, cancelling a queued HPC job if needed
+```
+Needs `~/hpc_outputs` mounted, and either a valid `hpc-client login` or `HPC_PASSWORD` set. CIFAR-10 must be on the NAS
+as `fzho027_cifar10/cifar-10-batches-py`.
+
+At most 30 jobs wait in the HPC queue at once (`MAX_QUEUED`); the rest are submitted as queued jobs start.
+The dashboard shows each run's status and refreshes from the scheduler every 30 seconds. Finished runs are copied to
+`results/<experiment>/seed_<seed>/`, with the job's log as `run.log`, and plotted to `graph_training.png`. A run whose
+folder already exists is skipped, so nothing is overwritten.
+
+`EXPERIMENTS` and `SEEDS` in `hpc_run.py` set the sweep, and `SWEEP` names its state file,
+`results/hpc_run_state_<SWEEP>.json` (the current sweep is `blur_window_20_30`, which reruns `exp_11` and `exp_12` after
+`blur_window`, `exp_05`-`exp_16`, ran them with a 20-25 window; the first sweep, `exp_01`-`exp_04`, used `results/hpc_run_state.json`). Events and job ids from every sweep go to `results/hpc_run.log`. Ctrl-C only stops the
+dashboard: the jobs keep running, and running the script again picks them back up. The sweep stays on the image it
+started with, so editing the code doesn't change it. To start a new sweep with the current code, delete the state file, or change `SWEEP` to keep the old one.
+`--retry-failed` runs failed and cancelled runs again.
 
 ## Findings
+### Final networks on blurred test images
+Five seeds per experiment, mean ± sample SD, from `results/eval_blurred.csv` and plotted in
+`results/graph_fisher_all.png`. The blur is the training one. `exp_01`-`exp_04` use their last checkpoint, epoch 200; the
+rest use epoch 150.
+
+| Blur window | Adam | Blurred test | Sharp test | SGD | Blurred test | Sharp test |
+|---|---|---|---|---|---|---|
+| none | `exp_01` | 14.3% ± 3.1% | 92.4% ± 0.4% | `exp_02` | 17.0% ± 1.7% | 93.0% ± 0.3% |
+| 0-10 | `exp_03` | 21.1% ± 1.9% | 90.3% ± 0.4% | `exp_04` | 23.9% ± 1.2% | 90.9% ± 0.3% |
+| 5-15 | `exp_05` | 16.5% ± 1.2% | 92.0% ± 0.2% | `exp_06` | 20.6% ± 2.2% | 92.3% ± 0.2% |
+| 10-20 | `exp_07` | 17.4% ± 1.4% | 92.3% ± 0.5% | `exp_08` | 19.6% ± 1.7% | 92.8% ± 0.2% |
+| 15-25 | `exp_09` | 18.2% ± 0.6% | 92.2% ± 0.4% | `exp_10` | 19.5% ± 1.9% | 92.9% ± 0.2% |
+| 20-30 | `exp_11` | 17.7% ± 0.5% | 92.5% ± 0.4% | `exp_12` | 18.6% ± 2.0% | 92.7% ± 0.3% |
+| 0-15 | `exp_13` | 23.9% ± 1.7% | 88.9% ± 0.5% | `exp_14` | 27.5% ± 1.7% | 90.2% ± 0.3% |
+| 0-20 | `exp_15` | 24.6% ± 2.8% | 88.1% ± 0.4% | `exp_16` | 30.4% ± 1.8% | 89.6% ± 0.6% |
+
+- **Blurred images are mostly forgotten.** Right after a 0-10 blur, the networks score about 72-74% on blurred test images
+  (`exp_03` and `exp_04`, seeds 42-43, epoch 10), and by the final checkpoint 21-24%.
+- **Blur from the start keeps the most, and costs the most on sharp images.** Windows starting at epoch 0 end highest on
+  blurred images and lowest on sharp ones. Windows starting later end close to the no-blur baselines on both.
+
+### Blur at the start, first runs
 One 200-epoch run per configuration, all with seed 0. Graphs: `results/exp_01/seed_0/graph_training.png`, and the same path
 for `exp_02`, `exp_03` and `exp_04`. They show epochs up to 150 (`X_RANGE` in `graph_training.py`); the table is from
 the full logs. `exp_03` and `exp_04` use blur sigma 2.4. `exp_01` and `exp_02` are older runs, from before checkpoints
@@ -63,7 +129,7 @@ were added and before the last edit to `util.py`, and have no saved networks.
 | Total weight norm, epoch 200 (80.0 at start) | 4273 | 91.2 | 4368 | 93.6 |
 | Effective rank, epoch 200 | 243 | 126 | 267 | 144 |
 | Stable rank delta, epoch 200 | 428 | 425 | 433 | 429 |
-| Fisher peak, any layer | 266 | 1089 | 98 | 3703 |
+| Fisher peak, any layer (raw total) | 266 | 1089 | 98 | 3703 |
 
 - **Ten blurred epochs leave a lasting accuracy deficit.** Final test accuracy is 2.6 points lower under Adam and 1.9
   points lower under SGD, and the gap is still there 190 epochs after the blur ends. For scale, earlier runs with a

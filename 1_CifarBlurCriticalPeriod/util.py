@@ -14,16 +14,16 @@ DATASETS = {
 }
 
 
-def get_loaders(dataset, batch_size, train_augmentation=()):
+def get_loaders(dataset, batch_size, train_augmentation=(), data_root="../datasets"):
     config = DATASETS[dataset]
     normalize = [transforms.ToTensor(), transforms.Normalize(config["mean"], config["std"])]
     train_transform = transforms.Compose([*train_augmentation, *normalize])
     clean_transform = transforms.Compose(normalize)
     print(f"Downloading {dataset} dataset...")
-    train_set = config["cls"](root="../datasets", train=True, download=True, transform=train_transform)
+    train_set = config["cls"](root=data_root, train=True, download=True, transform=train_transform)
     # Same training images without augmentation, so Fisher is measured on identical inputs every time.
-    fisher_set = config["cls"](root="../datasets", train=True, download=True, transform=clean_transform)
-    test_set = config["cls"](root="../datasets", train=False, download=True, transform=clean_transform)
+    fisher_set = config["cls"](root=data_root, train=True, download=True, transform=clean_transform)
+    test_set = config["cls"](root=data_root, train=False, download=True, transform=clean_transform)
     print(f"Train set size: {len(train_set)}, Test set size: {len(test_set)}")
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
     test_loader = DataLoader(test_set, batch_size=512, num_workers=2)

@@ -11,6 +11,8 @@ from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
+from networks import ResNet18
+
 EMA_DECAY = 0.9  # per logged point: 0 is no smoothing, closer to 1 is smoother
 RAW_ALPHA = 0.05
 FISHER_PREFIX = "fisher information/"
@@ -27,6 +29,8 @@ LAYER_COLORMAP = LinearSegmentedColormap.from_list("red_to_blue", ["#f4736b", "#
 BLUES_MIN = 0.35  # the pale start of Blues is too faint to read against a white background
 X_RANGE = (0, 150)  # epochs shown on both plots
 FISHER_LOG_Y = False  # log scale on the Fisher y-axis
+FISHER_PER_PARAM = True  # divide each layer's Fisher trace by its parameter count
+FISHER_EXCLUDED_LAYERS = ("layer_1", "layer_10")  # first convolution and classifier: per parameter they dwarf the blocks
 FISHER_YLIM_PERCENTILE = 99  # fit the y-axis to the bulk of the values, not the early output layer spike
 TEXT_COLOR = "#0b0b0b"
 MUTED_COLOR = "#52514e"
@@ -59,6 +63,18 @@ def load_series(log_dir):
     weight_norm = {tag[len(WEIGHT_NORM_PREFIX):]: read(tag) for tag in weight_norm_tags}
     ranks = {name: read(tag) for name, tag in RANK_TAGS.items()}
     return accuracy, fisher, weight_norm, read(weight_norm_total_tag), ranks
+
+
+def prepare_fisher(fisher, log_dir):
+    """Divide each layer's Fisher by its parameter count if FISHER_PER_PARAM, and drop FISHER_EXCLUDED_LAYERS."""
+    if FISHER_PER_PARAM:
+        # Every experiment uses the default ResNet18, and util.compute_fisher groups parameters by model.layers too.
+        param_counts = [sum(p.numel() for p in layer.parameters()) for layer in ResNet18().layers]
+        if len(fisher) != len(param_counts):
+            raise SystemExit(f"{log_dir} has {len(fisher)} Fisher layers, but ResNet18 has {len(param_counts)}.")
+        fisher = {name: (epochs, [v / param_counts[int(name.rsplit("_", 1)[1]) - 1] for v in values])
+                  for name, (epochs, values) in fisher.items()}
+    return {name: series for name, series in fisher.items() if name not in FISHER_EXCLUDED_LAYERS}
 
 
 def ema(values):
@@ -100,12 +116,16 @@ def main():
     if not os.path.isdir(log_dir):
         raise SystemExit(f"No run found at {log_dir}. Run the experiment first.")
     accuracy, fisher, weight_norm, weight_norm_total, ranks = load_series(log_dir)
+    fisher = prepare_fisher(fisher, log_dir)
+    fisher_ylabel, fisher_title, peak_format = "Fisher information (trace)", "Per-layer Fisher information", ".0f"
+    if FISHER_PER_PARAM:
+        fisher_ylabel, fisher_title, peak_format = "Fisher information per parameter", "Fisher information per parameter", ".3g"
 
     fig, ((ax_accuracy, ax_fisher), (ax_weight_norm, ax_ranks)) = plt.subplots(2, 2, figsize=(14, 10), layout="constrained")
     plot_lines(ax_accuracy, accuracy, "Accuracy", "Train and test accuracy", plt.get_cmap("Blues"), BLUES_MIN, smooth=False)
     fisher_values = np.concatenate([values for _, values in fisher.values()])
-    plot_lines(ax_fisher, fisher, "Fisher information (trace)",
-               f"Per-layer Fisher information (y-axis clipped, peak {fisher_values.max():.0f})", LAYER_COLORMAP)
+    plot_lines(ax_fisher, fisher, fisher_ylabel,
+               f"{fisher_title} (y-axis clipped, peak {fisher_values.max():{peak_format}})", LAYER_COLORMAP)
     ax_fisher.set_yscale("log" if FISHER_LOG_Y else "linear")
     # A log axis can't start at 0, so it keeps its automatic lower limit.
     ax_fisher.set_ylim(None if FISHER_LOG_Y else 0, 1.1 * np.percentile(fisher_values, FISHER_YLIM_PERCENTILE))

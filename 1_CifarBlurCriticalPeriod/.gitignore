@@ -1,2 +1,6 @@
 results/**/tensorboard/
 results/**/checkpoints/
+results/**/*.tmp/
+results/.local_runs/
+results/hpc_run_state*.json
+results/hpc_run.log
