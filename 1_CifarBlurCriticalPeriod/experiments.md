@@ -34,5 +34,5 @@ optimizer, the blur window, the number of epochs and how often the network is sa
 42-46); `exp_05`-`exp_16` are the `blur_window` sweep in `hpc_run.py`. That sweep ran `exp_11` and `exp_12` with a
 20-25 window by mistake, so the `blur_window_20_30` sweep reran them.
 
-`eval_blurred.py` tests each run's final saved network (epoch 200 for `exp_01`-`exp_04`, epoch 150 for the rest) on test
-images with the training blur.
+`eval_blurred.py` tests each run's epoch 150 network, the checkpoint every experiment has, on test images with the training
+blur.

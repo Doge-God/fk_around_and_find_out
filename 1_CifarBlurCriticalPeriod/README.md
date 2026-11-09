@@ -52,9 +52,10 @@ measured on sharp images, so during the blur they describe images the model is n
 - `networks.py`: the MLP and ResNet-18.
 - `util.py`: data loading, Fisher information, weight norm and representation ranks.
 - `graph_training.py`: plots a TensorBoard run.
-- `graph_fisher_seeds.py`: plots Fisher information for every experiment (rows) and seed (columns), with the y-axis shared by the Adam rows and by the SGD rows (`Y_SCALE_GROUPS`).
-- `graph_fisher_all.py`: the same grid for all 16 experiments with blur windows shaded, plus a final column of train/test accuracy over the 5 seeds (mean, SD shading, test accuracy labelled at epoch 150), with a dashed line for the final networks on blurred test images.
-- `eval_blurred.py`: tests each run's final saved network on sharp and blurred test images, and prints the mean and SD over seeds.
+- `graph_fisher.py`: plots Fisher information for all 16 experiments (rows) and 5 seeds (columns), with blur windows shaded and the y-axis shared by the Adam rows and by the SGD rows.
+- `graph_report.py`: one row per experiment, with seed 42's Fisher information, then over the 5 seeds (mean, SD shading): train/test accuracy, epoch 150 networks on the full test set at blur sigma 0-3, representation ranks, and total and per-layer weight norm.
+- `graph_blur_windows.py`: for one optimizer (`OPTIMIZER`), the no-blur baseline against the 10-epoch blur windows: seed 42's Fisher information, and epoch 150 accuracy across blur sigmas with a table of accuracy, area under the curve and ranks over the 5 seeds.
+- `eval_blurred.py`: tests each run's epoch 150 network on the full sharp and training-blurred test sets, and prints the mean and SD over seeds.
 - `hpc_run.py`: runs a sweep of experiments and seeds on the HPC, collects the results and plots them.
 - `Dockerfile`: the training image `hpc_run.py` builds and submits.
 
@@ -63,10 +64,12 @@ measured on sharp images, so during the blur they describe images the model is n
 python exp_01.py --seed 42                     # logs to results/exp_01/seed_42/tensorboard/, replacing the previous run with that seed
 tensorboard --logdir results/exp_01           # one run per seed; see the "fisher information", "weight norm" and "representation" sections
 python graph_training.py exp_01 --seed 42     # -> results/exp_01/seed_42/graph_training.png
-python graph_fisher_seeds.py                  # -> results/graph_fisher_seeds.png, all experiments and seeds,
-                                              #    and graph_fisher_seeds_epoch_140_150.png, zoomed to epochs 140-150
-python eval_blurred.py                        # -> results/eval_blurred.csv, final networks on sharp and blurred test images
-python graph_fisher_all.py                    # -> results/graph_fisher_all.png, exp_01-exp_16 with aggregated accuracy (needs eval_blurred.csv)
+python graph_fisher.py                        # -> results/graph_fisher.png, all experiments and seeds,
+                                              #    and graph_fisher_epoch_140_150.png, zoomed to epochs 140-150
+python eval_blurred.py                        # -> results/eval_blurred.csv, epoch 150 networks on sharp and blurred test images
+python graph_report.py                        # -> results/graph_report.png, the summary of all experiments. Saves the blur
+                                              #    evaluation to results/graph_report_blur_eval.csv; delete it to evaluate again
+python graph_blur_windows.py                  # -> results/graph_blur_windows_<optimizer>.png, for OPTIMIZER
 ```
 `--seed` defaults to 42 in both scripts.
 Each run also saves the network's `state_dict` to `results/exp_01/seed_42/checkpoints/epoch_XXX.pt` (about 45 MB each,
@@ -95,24 +98,24 @@ started with, so editing the code doesn't change it. To start a new sweep with t
 `--retry-failed` runs failed and cancelled runs again.
 
 ## Findings
-### Final networks on blurred test images
-Five seeds per experiment, mean ± sample SD, from `results/eval_blurred.csv` and plotted in
-`results/graph_fisher_all.png`. The blur is the training one. `exp_01`-`exp_04` use their last checkpoint, epoch 200; the
-rest use epoch 150.
+### Epoch 150 networks on blurred test images
+Five seeds per experiment, mean ± sample SD, from `results/eval_blurred.csv`. The blur is the training one. Every experiment
+uses its epoch 150 checkpoint, including `exp_01`-`exp_04`, which trained on to epoch 200. `results/graph_report.png` shows the
+same networks across blur sigmas 0-3.
 
 | Blur window | Adam | Blurred test | Sharp test | SGD | Blurred test | Sharp test |
 |---|---|---|---|---|---|---|
-| none | `exp_01` | 14.3% ± 3.1% | 92.4% ± 0.4% | `exp_02` | 17.0% ± 1.7% | 93.0% ± 0.3% |
-| 0-10 | `exp_03` | 21.1% ± 1.9% | 90.3% ± 0.4% | `exp_04` | 23.9% ± 1.2% | 90.9% ± 0.3% |
+| none | `exp_01` | 17.3% ± 2.6% | 92.2% ± 0.4% | `exp_02` | 16.4% ± 2.4% | 92.6% ± 0.2% |
+| 0-10 | `exp_03` | 21.9% ± 1.6% | 89.9% ± 0.7% | `exp_04` | 23.8% ± 0.7% | 91.1% ± 0.3% |
 | 5-15 | `exp_05` | 16.5% ± 1.2% | 92.0% ± 0.2% | `exp_06` | 20.6% ± 2.2% | 92.3% ± 0.2% |
 | 10-20 | `exp_07` | 17.4% ± 1.4% | 92.3% ± 0.5% | `exp_08` | 19.6% ± 1.7% | 92.8% ± 0.2% |
-| 15-25 | `exp_09` | 18.2% ± 0.6% | 92.2% ± 0.4% | `exp_10` | 19.5% ± 1.9% | 92.9% ± 0.2% |
+| 15-25 | `exp_09` | 18.2% ± 0.6% | 92.2% ± 0.4% | `exp_10` | 19.5% ± 1.8% | 92.8% ± 0.2% |
 | 20-30 | `exp_11` | 17.7% ± 0.5% | 92.5% ± 0.4% | `exp_12` | 18.6% ± 2.0% | 92.7% ± 0.3% |
-| 0-15 | `exp_13` | 23.9% ± 1.7% | 88.9% ± 0.5% | `exp_14` | 27.5% ± 1.7% | 90.2% ± 0.3% |
+| 0-15 | `exp_13` | 23.9% ± 1.7% | 88.9% ± 0.5% | `exp_14` | 27.5% ± 1.7% | 90.2% ± 0.2% |
 | 0-20 | `exp_15` | 24.6% ± 2.8% | 88.1% ± 0.4% | `exp_16` | 30.4% ± 1.8% | 89.6% ± 0.6% |
 
 - **Blurred images are mostly forgotten.** Right after a 0-10 blur, the networks score about 72-74% on blurred test images
-  (`exp_03` and `exp_04`, seeds 42-43, epoch 10), and by the final checkpoint 21-24%.
+  (`exp_03` and `exp_04`, seeds 42-43, epoch 10), and by epoch 150 22-24%.
 - **Blur from the start keeps the most, and costs the most on sharp images.** Windows starting at epoch 0 end highest on
   blurred images and lowest on sharp ones. Windows starting later end close to the no-blur baselines on both.
 
