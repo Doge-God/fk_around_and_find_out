@@ -4,3 +4,5 @@ results/**/*.tmp/
 results/.local_runs/
 results/hpc_run_state*.json
 results/hpc_run.log
+results/hpc_eval_blur_state.json
+results/hpc_eval_blur.log

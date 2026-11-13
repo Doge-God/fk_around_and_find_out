@@ -1,104 +1,146 @@
-# Per-layer Fisher information in a ResNet-18 on CIFAR-10
+# Blur critical period in a ResNet-18 on CIFAR-10
 
-**Question:** how do each layer's Fisher information, the weight norms and the rank of the representation change
-while a ResNet-18 trains, and does a blur deficit in the first epochs change them?
+**Question:** does a ResNet-18 have a critical period for blurred input? How does what a 10-epoch blur window costs the final
+network depend on where in training the window falls, and how do per-layer Fisher information, representation rank and
+SIGReg respond to the blur?
 
 ## Setup
 - **Model:** CIFAR-style ResNet-18 (3x3 first convolution, no max pool).
-- **Training:** batch size 128, no weight decay, constant learning rate. Adam uses learning rate 0.005; SGD uses
-  learning rate 0.01 with momentum 0.9. The blur is Gaussian, sigma 2.4 pixels, on training images only. Epoch numbers
-  count from 1, and a blur window "a-b" covers epochs a+1 to b.
+- **Training:** 150 epochs, batch size 128, no weight decay, constant learning rate, random translations of up to 4 pixels and
+  horizontal flips. Only the final network is saved.
+- **Blur:** Gaussian, sigma 2.4 pixels, on training images only. Epoch numbers count from 1, and a blur window "a-b" covers
+  epochs a+1 to b.
+- **Batches** (`experiments.md` lists every experiment):
 
-| | Adam | SGD | Blur window | Epochs | Checkpoints |
-|---|---|---|---|---|---|
-| Baseline | `exp_01` | `exp_02` | none | 200 | every 10 epochs |
-| Blur at the start | `exp_03` | `exp_04` | 0-10 | 200 | every 10 epochs |
-| Window shifted by 5 | `exp_05` | `exp_06` | 5-15 | 150 | final only |
-| Shifted by 10 | `exp_07` | `exp_08` | 10-20 | 150 | final only |
-| Shifted by 15 | `exp_09` | `exp_10` | 15-25 | 150 | final only |
-| Shifted by 20 | `exp_11` | `exp_12` | 20-30 | 150 | final only |
-| Longer, from the start | `exp_13` | `exp_14` | 0-15 | 150 | final only |
-| Longer, from the start | `exp_15` | `exp_16` | 0-20 | 150 | final only |
+| Batch | Optimizer | Experiments | Seeds |
+|---|---|---|---|
+| `batch_01` | Adam, learning rate 0.005 | 31: no blur, blur on every epoch, 10-epoch windows 0-10, 5-15, ..., 140-150 | 42-46 |
+| `batch_02` | SGD, learning rate 0.01, momentum 0.9 | the same 31 | 42-46 |
 
-- **Augmentation:** random translations of up to 4 pixels and random horizontal flips, on training images only.
-- **Fisher information:** trace of the true Fisher per layer, where the 10 "layers" are the first convolution,
-  the 8 residual blocks and the classifier, with labels sampled from the model's predictions.
-  It is measured every 100 steps on 1000 fixed, unaugmented training images.
+Logged to TensorBoard:
+- **Fisher information:** trace of the true Fisher per layer, where the 10 "layers" are the first convolution, the 8 residual
+  blocks and the classifier, with labels sampled from the model's predictions. Every 100 steps, on 1000 fixed, unaugmented
+  training images.
 - **Weight norm:** L2 norm of the parameters in total and per layer (batch norm parameters included), every 100 steps.
-- **Representation:** singular values of the penultimate features (512 pooled values, before the classifier) of the
-  first test batch (512 images, the same ones every time, no centering), at step 0 and after each epoch. With the
-  singular values normalised by their sum into p:
-  - effective rank = exp(-sum p_i log p_i).
-  - stable rank delta = the smallest k whose top-k values of p cover at least 99% of the total.
+- **Representation** (`representation/`): of the penultimate features (512 pooled values, before the classifier) of the first
+  test batch (512 images, the same every time), at step 0 and after each epoch:
+  - effective rank = exp(-sum p_i log p_i), with p the singular values normalised by their sum (no centering),
+  - stable rank delta = the smallest k whose top-k values of p cover at least 99% of the total,
+  - SIGReg, from [LeJEPA](https://github.com/galilai-group/lejepa/blob/main/MINIMAL.md): how far 256 random 1-D projections
+    of the features are from a standard normal, by their characteristic functions. 0 is Gaussian. `sigreg` is on the
+    features as they are, so it also counts their mean and scale (they are non-negative, after a ReLU);
+    `sigreg_standardized` standardises each feature over the batch first, so it measures shape only. The projections are
+    drawn once from a fixed seed, so every reading uses the same ones.
+- **Accuracy and loss:** train, on augmented (and during the blur, blurred) images as it trains; test, on the full sharp
+  test set after each epoch.
+- **Blurred readings:** every reading above that depends on input images is taken again on the same images with the
+  training blur, throughout training and in every experiment, including no blur: test accuracy and loss
+  (`test_blurred/`), the representation measures (`representation_blurred/`) and Fisher information
+  (`fisher information_blurred/`). They show how the network treats blurred images before, during and after a blur
+  window. This roughly doubles the cost of Fisher, the slowest reading.
 
-The logs hold Fisher totals per layer. `graph_training.py` plots them divided by each layer's parameter count
-(`FISHER_PER_PARAM`), since the layers range from 1,856 parameters (first convolution) to 4.7 million (last block).
-The Fisher panel leaves out the first convolution and the classifier (`FISHER_EXCLUDED_LAYERS`), whose much higher
-values per parameter would flatten the residual blocks.
-They use batch norm's running statistics. These are still at their initial values at
-step 0, so that point is less comparable with the rest of the run.
-
-Train accuracy is measured on augmented images during training, so it can sit below test accuracy.
-
-The blur applies to training images only. Test accuracy, Fisher information and representation ranks are always
-measured on sharp images, so during the blur they describe images the model is not training on.
+Fisher, ranks and SIGReg use batch norm's running statistics. These are still at their initial values at step 0, so that
+point is less comparable with the rest of the run. `analysis/graph_training.py` plots Fisher divided by each layer's
+parameter count, leaving out the first convolution and the classifier, whose much higher values per parameter would flatten
+the residual blocks.
 
 ## Files
-- `experiments.md`: what each experiment does, in one table.
-- `exp_01.py` ... `exp_16.py`: one per row of the table above, holding that experiment's settings (optimizer, epochs,
-  checkpoints, blur window).
-- `training_procedure.py`: the training loop they all call, and the settings they share (batch size, augmentation, blur
-  sigma, how often Fisher and weight norms are logged).
+- `batch_01.py`, `batch_02.py`: one per batch, holding the settings its experiments share (optimizer, epochs, seeds) and the
+  sweep that generates them. Each runs one experiment of its batch.
+- `training_procedure.py`: the training loop, and the settings every batch shares (batch size, augmentation, blur sigma, how
+  often Fisher and weight norms are logged).
 - `networks.py`: the MLP and ResNet-18.
-- `util.py`: data loading, Fisher information, weight norm and representation ranks.
-- `graph_training.py`: plots a TensorBoard run.
-- `graph_fisher.py`: plots Fisher information for all 16 experiments (rows) and 5 seeds (columns), with blur windows shaded and the y-axis shared by the Adam rows and by the SGD rows.
-- `graph_report.py`: one row per experiment, with seed 42's Fisher information, then over the 5 seeds (mean, SD shading): train/test accuracy, epoch 150 networks on the full test set at blur sigma 0-3, representation ranks, and total and per-layer weight norm.
-- `graph_blur_windows.py`: for one optimizer (`OPTIMIZER`), the no-blur baseline against the 10-epoch blur windows: seed 42's Fisher information, and epoch 150 accuracy across blur sigmas with a table of accuracy, area under the curve and ranks over the 5 seeds.
-- `eval_blurred.py`: tests each run's epoch 150 network on the full sharp and training-blurred test sets, and prints the mean and SD over seeds.
-- `hpc_run.py`: runs a sweep of experiments and seeds on the HPC, collects the results and plots them.
-- `Dockerfile`: the training image `hpc_run.py` builds and submits.
+- `util.py`: data loading, Fisher information, weight norm, representation ranks and SIGReg.
+- `analysis/`: graphs and evaluation, run from this folder as `python -m analysis.<script>`:
+  - `common.py`: what the scripts below share: reading a batch's runs and logs, and the plot styles.
+  - `graph_training.py`: one run's accuracy, Fisher information, weight norms, ranks and SIGReg over training, with the
+    blurred readings as lighter lines, and Fisher on sharp and on blurred images in two panels on the same y-axis.
+  - `eval_blur.py`: tests a batch's final networks on test images blurred with sigma 0-3 (accuracy on the full test set, ranks
+    and SIGReg on the first test batch), cached in `results/<batch>/eval_blur.csv`. The graphs below call it for any runs
+    missing from it.
+  - `graph_blur_accuracy.py`: accuracy of a batch's final networks against test image blur sigma, all experiments in one panel
+    (no blur and blur on every epoch in black, the windows in viridis by start epoch), and a table of accuracy on sharp and
+    training-blurred images and area under the curve, mean ± SD over seeds.
+  - `graph_fisher.py`: seed 42's per-layer Fisher information for every experiment of a batch, over all epochs and over the
+    last 10.
+  - `graph_blur_ranks.py`: stable rank delta, effective rank and SIGReg (raw and standardised) of a batch's final networks
+    against test image blur sigma, in the colours of `graph_blur_accuracy.py`.
+  - `graph_blur_examples.py`: one test image at blur sigma 0-3.
+- `hpc_run.py`: runs both batches on the HPC, collects the results and plots each run.
+- `hpc_eval_blur.py`: runs `analysis/eval_blur.py` on the HPC, one job per experiment, and merges the rows into
+  `results/<batch>/eval_blur.csv`.
+- `Dockerfile`: the image `hpc_run.py` and `hpc_eval_blur.py` build and submit, with the training and analysis code.
+- `experiments.md`: every experiment, and the earlier `exp_XX` experiments.
 
 ## Run
 ```
-python exp_01.py --seed 42                     # logs to results/exp_01/seed_42/tensorboard/, replacing the previous run with that seed
-tensorboard --logdir results/exp_01           # one run per seed; see the "fisher information", "weight norm" and "representation" sections
-python graph_training.py exp_01 --seed 42     # -> results/exp_01/seed_42/graph_training.png
-python graph_fisher.py                        # -> results/graph_fisher.png, all experiments and seeds,
-                                              #    and graph_fisher_epoch_140_150.png, zoomed to epochs 140-150
-python eval_blurred.py                        # -> results/eval_blurred.csv, epoch 150 networks on sharp and blurred test images
-python graph_report.py                        # -> results/graph_report.png, the summary of all experiments. Saves the blur
-                                              #    evaluation to results/graph_report_blur_eval.csv; delete it to evaluate again
-python graph_blur_windows.py                  # -> results/graph_blur_windows_<optimizer>.png, for OPTIMIZER
+python batch_01.py                                   # list the experiments
+python batch_01.py --experiment exp_03 --seed 42     # -> results/batch_01/experiments/exp_03/seed_42/, replacing an earlier run
+tensorboard --logdir results/batch_01/experiments/exp_03
+python -m analysis.graph_training batch_01 exp_03 --seed 42   # -> .../exp_03/seed_42/graph_training.png
+python -m analysis.eval_blur batch_01                # -> results/batch_01/eval_blur.csv; delete it to evaluate again
+python -m analysis.graph_blur_accuracy batch_01      # -> results/batch_01/graph_blur_accuracy.png
+python -m analysis.graph_fisher batch_01             # -> results/batch_01/graph_fisher.png
+python -m analysis.graph_blur_ranks batch_01         # -> results/batch_01/graph_blur_ranks.png
+python -m analysis.graph_blur_examples               # -> results/graph_blur_examples.png
 ```
-`--seed` defaults to 42 in both scripts.
-Each run also saves the network's `state_dict` to `results/exp_01/seed_42/checkpoints/epoch_XXX.pt` (about 45 MB each,
-git-ignored): every 10 epochs for `exp_01`-`exp_04`, and only after the last epoch (`epoch_150.pt`) for `exp_05`-`exp_16`.
-A repeated run with the same seed replaces them.
-The other experiments run the same way: replace `exp_01` with any of `exp_02`-`exp_16` in the commands above.
+`--seed` defaults to 42. Each run saves its final network to `checkpoints/epoch_150.pt` (about 45 MB, git-ignored).
+The batch graphs need every experiment and seed of the batch.
 
 ## Run on the HPC
 ```
-python hpc_run.py            # exp_11 and exp_12, seeds 42-46, 10 runs on the HPC
+python hpc_run.py            # batch_01 and batch_02, 31 experiments x 5 seeds each, 310 runs on the HPC
 python hpc_run.py --local    # this PC also takes one run at a time, cancelling a queued HPC job if needed
 ```
 Needs `~/hpc_outputs` mounted, and either a valid `hpc-client login` or `HPC_PASSWORD` set. CIFAR-10 must be on the NAS
 as `fzho027_cifar10/cifar-10-batches-py`.
 
 At most 30 jobs wait in the HPC queue at once (`MAX_QUEUED`); the rest are submitted as queued jobs start.
-The dashboard shows each run's status and refreshes from the scheduler every 30 seconds. Finished runs are copied to
-`results/<experiment>/seed_<seed>/`, with the job's log as `run.log`, and plotted to `graph_training.png`. A run whose
-folder already exists is skipped, so nothing is overwritten.
+The dashboard shows each run's status, one row per experiment and one column per batch and seed, and refreshes from the
+scheduler every 30 seconds. Finished runs are copied to `results/<batch>/experiments/<experiment>/seed_<seed>/`, with the
+job's log as `run.log`, and plotted to `graph_training.png`. A run whose folder already exists is skipped, so nothing is
+overwritten.
 
-`EXPERIMENTS` and `SEEDS` in `hpc_run.py` set the sweep, and `SWEEP` names its state file,
-`results/hpc_run_state_<SWEEP>.json` (the current sweep is `blur_window_20_30`, which reruns `exp_11` and `exp_12` after
-`blur_window`, `exp_05`-`exp_16`, ran them with a 20-25 window; the first sweep, `exp_01`-`exp_04`, used `results/hpc_run_state.json`). Events and job ids from every sweep go to `results/hpc_run.log`. Ctrl-C only stops the
-dashboard: the jobs keep running, and running the script again picks them back up. The sweep stays on the image it
-started with, so editing the code doesn't change it. To start a new sweep with the current code, delete the state file, or change `SWEEP` to keep the old one.
-`--retry-failed` runs failed and cancelled runs again.
+`BATCHES` in `hpc_run.py` sets the sweep, with each batch file's `EXPERIMENTS` and `SEEDS`, and `SWEEP` names its state file,
+`results/hpc_run_state_<SWEEP>.json` (currently `batch_01_02`). Events and job ids go to `results/hpc_run.log`. Ctrl-C only
+stops the dashboard: the jobs keep running, and running the script again picks them back up. The sweep stays on the image it
+started with, so editing the code doesn't change it. To start a new sweep with the current code, delete the state file, or
+change `SWEEP` to keep the old one. `--retry-failed` runs failed and cancelled runs again.
+When the sweep is done, run the batch graphs above for `batch_01` and `batch_02`.
+
+## Evaluate on the HPC
+`eval_blur.py` takes about 37 s per checkpoint on this PC's RTX 3080, so about 3 hours for both batches. `hpc_eval_blur.py`
+spreads the work over the HPC instead, one job per experiment (62 jobs, each 5 seeds x 31 sigmas).
+Jobs can only read NAS datasets, not `~/hpc_outputs`, so the final checkpoints go up first as the dataset
+`fzho027_cifar_blur_checkpoints`, laid out like `results/` (about 13 GB; each worker caches its copy). Mount the NAS datasets
+share and upload them. Running the rsync again only sends new or changed files:
+```
+mkdir -p ~/cares_datasets
+sudo mount -t cifs //130.216.238.2/datasets ~/cares_datasets -o username=<upi>,uid=$(id -u),gid=$(id -g)
+rsync -avh --prune-empty-dirs --include='*/' --include='checkpoints/epoch_*.pt' --exclude='*' \
+    results/batch_01 results/batch_02 ~/cares_datasets/fzho027_cifar_blur_checkpoints/
+```
+Then:
+```
+python hpc_eval_blur.py --check    # every needed checkpoint is on the NAS at its local size; lists the jobs, submits nothing
+python hpc_eval_blur.py            # build and push the image, submit, poll every 30 s and merge each finished job's CSV
+```
+Experiments whose seeds are all in `results/<batch>/eval_blur.csv` already are skipped. Each job runs
+`python -m analysis.eval_blur <batch> --experiment <exp> --checkpoints-root /workspace/datasets/fzho027_cifar_blur_checkpoints
+--results-root /workspace/output ...`. Its container log is kept in `results/<batch>/eval_blur_logs/<exp>.log`. Progress is kept in
+`results/hpc_eval_blur_state.json`. Ctrl-C leaves the jobs running, running the script again picks them back up, and
+`--retry-failed` resubmits failed jobs. Then run `graph_blur_accuracy` and `graph_blur_ranks` for both batches: everything is
+in the CSVs, so they only plot.
 
 ## Findings
-### Epoch 150 networks on blurred test images
+### Batches 01 and 02
+Not run yet.
+
+### Earlier experiments
+From `exp_01`-`exp_30` (see `experiments.md`), whose results were deleted. Their summary graphs are in `results/archive/`;
+the files named below are gone.
+
+#### Epoch 150 networks on blurred test images
 Five seeds per experiment, mean ± sample SD, from `results/eval_blurred.csv`. The blur is the training one. Every experiment
 uses its epoch 150 checkpoint, including `exp_01`-`exp_04`, which trained on to epoch 200. `results/graph_report.png` shows the
 same networks across blur sigmas 0-3.
@@ -119,7 +161,7 @@ same networks across blur sigmas 0-3.
 - **Blur from the start keeps the most, and costs the most on sharp images.** Windows starting at epoch 0 end highest on
   blurred images and lowest on sharp ones. Windows starting later end close to the no-blur baselines on both.
 
-### Blur at the start, first runs
+#### Blur at the start, first runs
 One 200-epoch run per configuration, all with seed 0. Graphs: `results/exp_01/seed_0/graph_training.png`, and the same path
 for `exp_02`, `exp_03` and `exp_04`. They show epochs up to 150 (`X_RANGE` in `graph_training.py`); the table is from
 the full logs. `exp_03` and `exp_04` use blur sigma 2.4. `exp_01` and `exp_02` are older runs, from before checkpoints

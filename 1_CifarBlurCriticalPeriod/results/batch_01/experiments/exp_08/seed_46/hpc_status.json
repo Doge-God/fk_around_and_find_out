@@ -1,0 +1,43 @@
+{
+  "job_id": "cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb",
+  "job_name": "cifar_blur_b01_exp_08_s46_d3fc40679d2a",
+  "user": "6ff8f08b007de7f824cfbdc0e18b2666",
+  "status": "completed",
+  "created_at": "2026-11-12T20:50:58.119424+13:00",
+  "updated_at": "2026-11-12T21:42:57.528141+13:00",
+  "image": "130.216.238.2:5500/fzho027_cifar-blur-critical-period:d3fc40679d2a",
+  "container_name": "hpc_4500-R3_cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb",
+  "nas_job_dir": "/mnt/hpc/outputs/fzho027/cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb",
+  "nas_output_dir": "/mnt/hpc/outputs/fzho027/cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb/output",
+  "nas_logs_dir": "/mnt/hpc/outputs/fzho027/cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb/logs",
+  "local_job_dir": "/home/cares-admin/hpc_worker/scratch/jobs/cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb",
+  "resumed_from_existing_scratch": false,
+  "resumed_after_preemption": false,
+  "required_datasets": [
+    "fzho027_cifar10"
+  ],
+  "started_at": "2026-11-12T20:50:58.416365+13:00",
+  "max_runtime_seconds": 21600,
+  "command": "python batch_01.py --experiment exp_08 --seed 46 --data-root /workspace/datasets/fzho027_cifar10 --results-root /workspace/output",
+  "volumes": {
+    "/home/cares-admin/hpc_worker/scratch/jobs/cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb/input": {
+      "bind": "/workspace/input",
+      "mode": "ro"
+    },
+    "/home/cares-admin/hpc_worker/scratch/jobs/cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb/output": {
+      "bind": "/workspace/output",
+      "mode": "rw"
+    },
+    "/home/cares-admin/hpc_worker/scratch/jobs/cifar_blur_b01_exp_08_s46_d3fc40679d2a_261112173140_eedb/logs": {
+      "bind": "/workspace/logs",
+      "mode": "rw"
+    },
+    "/home/cares-admin/hpc_worker/scratch/datasets/fzho027_cifar10": {
+      "bind": "/workspace/datasets/fzho027_cifar10",
+      "mode": "ro"
+    }
+  },
+  "return_code": 0,
+  "timed_out": false,
+  "runtime_seconds": 3119.110249827616
+}

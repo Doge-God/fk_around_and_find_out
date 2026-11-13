@@ -1,6 +1,8 @@
-"""Run every experiment and seed on the HPC, collect the results into results/ and plot them, with a live dashboard.
+"""Run every experiment and seed of the batches in BATCHES on the HPC, collect the results into results/ and plot them, with a
+live dashboard.
 
-Builds and pushes the image, submits the jobs and polls them. EXPERIMENTS and SEEDS set the sweep. With --local this PC
+Builds and pushes the image, submits the jobs and polls them. Each batch module's EXPERIMENTS and SEEDS set its part of the
+sweep. Finished runs are copied to results/<batch>/experiments/<experiment>/seed_<seed>/. With --local this PC
 takes one run at a time as well, cancelling a queued HPC job to do so. Progress is kept in
 results/hpc_run_state_<SWEEP>.json: Ctrl-C leaves the jobs running, and running the script again picks the sweep up
 where it was.
@@ -9,6 +11,7 @@ where it was.
 import argparse
 import glob
 import hashlib
+import importlib
 import json
 import os
 import shlex
@@ -29,10 +32,10 @@ from rich.live import Live
 from rich.table import Table
 from rich.text import Text
 
-# Each sweep keeps its own state file, so a new one starts fresh. The first, exp_01-exp_04, used hpc_run_state.json.
-SWEEP = "blur_window_20_30"
-EXPERIMENTS = ["exp_11", "exp_12"]  # rerun with the 20-30 window: the blur_window sweep, exp_05-exp_16, had them at 20-25
-SEEDS = [42, 43, 44, 45, 46]
+# Each sweep keeps its own state file, so a new one starts fresh.
+SWEEP = "batch_01_02"
+BATCHES = ["batch_01", "batch_02"]  # Adam and SGD, each 31 experiments x 5 seeds
+BATCH_MODULES = {name: importlib.import_module(name) for name in BATCHES}
 MAX_QUEUED = 30  # HPC jobs waiting in the queue at once; more are submitted as these start
 POLL_SECONDS = 30
 REFRESH_SECONDS = 0.5
@@ -41,8 +44,7 @@ OUTPUTS_TIMEOUT_SECONDS = 1800  # how long a completed job's outputs may take to
 MAX_COLLECT_ATTEMPTS = 5  # the NAS is a soft mount, so reads can fail and need retrying
 COLLECT_WORKERS = 2
 REGISTRY_IMAGE = "130.216.238.2:5500/fzho027_cifar-blur-critical-period"
-IMAGE_FILES = ["Dockerfile", *(f"{experiment}.py" for experiment in EXPERIMENTS), "training_procedure.py",
-               "networks.py", "util.py"]
+IMAGE_FILES = ["Dockerfile", *(f"{batch}.py" for batch in BATCHES), "training_procedure.py", "networks.py", "util.py"]
 DATASET_NAME = "fzho027_cifar10"
 CONTAINER_DATA_ROOT = f"/workspace/datasets/{DATASET_NAME}"
 CONTAINER_OUTPUT = "/workspace/output"
@@ -72,19 +74,31 @@ MISSING = "missing"
 FAILED = "failed"
 FAILURES = (TERMINAL - {COMPLETED}) | {MISSING}
 FINISHED = FAILURES | {COLLECTED, EXISTING}
-LABELS = {COMPLETED: "done"}
+# Short, so the dashboard's batch x seed columns fit a terminal.
+LABELS = {PENDING: "-", QUEUED: "queued", RUNNING: "run", COMPLETED: "done", COLLECTING: "copy", PLOTTING: "plot",
+          COLLECTED: "ok", EXISTING: "exists"}
+MAX_FAILURE_LINES = 10
 STYLES = {
     PENDING: "dim", QUEUED: "yellow", RUNNING: "blue", COMPLETED: "cyan", COLLECTING: "magenta", PLOTTING: "magenta",
     COLLECTED: "green", EXISTING: "dim green", **{status: "bold red" for status in FAILURES},
 }
 
 
-def run_key(experiment, seed):
-    return f"{experiment}/{seed}"
+def run_key(batch, experiment, seed):
+    return f"{batch}/{experiment}/{seed}"
+
+
+def run_name(run):
+    return f"{run['batch']} {run['experiment']} seed {run['seed']}"
+
+
+def run_path(run):
+    """Where a run's results go, under the results root: <batch>/experiments/<experiment>/seed_<seed>."""
+    return os.path.join(run["batch"], "experiments", run["experiment"], f"seed_{run['seed']}")
 
 
 def target_dir(run):
-    return os.path.join(RESULTS_DIR, run["experiment"], f"seed_{run['seed']}")
+    return os.path.join(RESULTS_DIR, run_path(run))
 
 
 def job_root(run):
@@ -92,12 +106,16 @@ def job_root(run):
 
 
 def output_dir(run):
-    return os.path.join(job_root(run), "output", run["experiment"], f"seed_{run['seed']}")
+    return os.path.join(job_root(run), "output", run_path(run))
 
 
 def job_command(run):
-    return (f"python {run['experiment']}.py --seed {run['seed']} "
+    return (f"python {run['batch']}.py --experiment {run['experiment']} --seed {run['seed']} "
             f"--data-root {CONTAINER_DATA_ROOT} --results-root {CONTAINER_OUTPUT}")
+
+
+def short_batch(run):
+    return f"b{run['batch'].removeprefix('batch_')}"
 
 
 def parse_time(value):
@@ -132,14 +150,15 @@ def build_and_push(image):
 
 def new_state(image):
     runs = {}
-    for experiment in EXPERIMENTS:
-        for seed in SEEDS:
-            run = {"experiment": experiment, "seed": seed, "status": PENDING, "backend": None, "job_id": None,
-                   "submitted_at": None, "started_at": None, "finished_at": None, "done_at": None,
-                   "stealing": False, "collect_attempts": 0, "plot_failed": False, "detail": ""}
-            if os.path.isdir(target_dir(run)):  # never overwrite an earlier run
-                run["status"] = EXISTING
-            runs[run_key(experiment, seed)] = run
+    for batch, module in BATCH_MODULES.items():
+        for experiment in module.EXPERIMENTS:
+            for seed in module.SEEDS:
+                run = {"batch": batch, "experiment": experiment, "seed": seed, "status": PENDING, "backend": None,
+                       "job_id": None, "submitted_at": None, "started_at": None, "finished_at": None, "done_at": None,
+                       "stealing": False, "collect_attempts": 0, "plot_failed": False, "detail": ""}
+                if os.path.isdir(target_dir(run)):  # never overwrite an earlier run
+                    run["status"] = EXISTING
+                runs[run_key(batch, experiment, seed)] = run
     return {"image": image, "runs": runs}
 
 
@@ -195,7 +214,7 @@ class Sweep:
             run.update(fields)
             self.save()
         if changed:
-            self.log(f"{run['experiment']} seed {run['seed']}: {run['status']} on {run['backend']}, "
+            self.log(f"{run_name(run)}: {run['status']} on {run['backend']}, "
                      f"job {run['job_id']} {run['detail']}".rstrip())
 
     def select(self, predicate):
@@ -269,7 +288,7 @@ class Sweep:
 
     def job_name(self, run):
         tag = self.state["image"].rsplit(":", 1)[1]
-        return f"cifar_blur_{run['experiment']}_s{run['seed']}_{tag}"
+        return f"cifar_blur_{short_batch(run)}_{run['experiment']}_s{run['seed']}_{tag}"
 
     def submit_pending(self):
         waiting = self.select(lambda run: run["backend"] == HPC and run["status"] not in
@@ -319,7 +338,7 @@ class Sweep:
             return
 
     def start_local(self, run):
-        job_id = f"cifar_blur_{run['experiment']}_s{run['seed']}_{datetime.now():%y%m%d%H%M%S}"
+        job_id = f"cifar_blur_{short_batch(run)}_{run['experiment']}_s{run['seed']}_{datetime.now():%y%m%d%H%M%S}"
         output = os.path.abspath(os.path.join(LOCAL_RUNS_DIR, job_id, "output"))
         os.makedirs(output)
         result = run_command(
@@ -408,7 +427,7 @@ class Sweep:
                 self.copy_results(run)
         except Exception as error:
             attempts = run["collect_attempts"] + 1
-            self.record_error(f"collecting {run['experiment']} seed {run['seed']}, attempt {attempts}: {error}")
+            self.record_error(f"collecting {run_name(run)}, attempt {attempts}: {error}")
             if attempts >= MAX_COLLECT_ATTEMPTS:
                 self.update(run, status=FAILED, collect_attempts=attempts, detail=f"could not collect: {error}")
             else:
@@ -416,10 +435,10 @@ class Sweep:
             return
 
         self.update(run, status=PLOTTING)
-        result = run_command([sys.executable, "graph_training.py", run["experiment"], "--seed", str(run["seed"])],
-                             env={**os.environ, "MPLBACKEND": "Agg"})
+        result = run_command([sys.executable, "-m", "analysis.graph_training", run["batch"], run["experiment"],
+                              "--seed", str(run["seed"])], env={**os.environ, "MPLBACKEND": "Agg"})
         if result.returncode != 0:
-            self.record_error(f"plotting {run['experiment']} seed {run['seed']}: {result.stderr.strip()[-300:]}")
+            self.record_error(f"plotting {run_name(run)}: {result.stderr.strip()[-300:]}")
         self.update(run, status=COLLECTED, plot_failed=result.returncode != 0)
 
     # ---- polling ----
@@ -452,10 +471,10 @@ class Sweep:
 
     def cell(self, run):
         status = run["status"]
-        label = "moving here" if run["stealing"] else LABELS.get(status, status)
+        label = "moving" if run["stealing"] else LABELS.get(status, status)
         parts = [label]
-        if run["backend"]:
-            parts.append(run["backend"])
+        if run["backend"] == LOCAL:  # most runs are on the HPC, so only this PC's are marked
+            parts.append("here")
         if run["started_at"]:
             parts.append(format_duration((run["finished_at"] or time.time()) - run["started_at"]))
         if run["plot_failed"]:
@@ -464,27 +483,34 @@ class Sweep:
 
     def render(self):
         with self.lock:
-            table = Table(expand=True)
+            # One row per experiment name, and a column per batch and seed.
+            table = Table(expand=True, padding=(0, 1))
             table.add_column("")
-            for seed in SEEDS:
-                table.add_column(f"seed {seed}")
-            for experiment in EXPERIMENTS:
-                table.add_row(experiment, *(self.cell(self.runs[run_key(experiment, seed)]) for seed in SEEDS))
+            columns = [(batch, seed) for batch, module in BATCH_MODULES.items() for seed in module.SEEDS]
+            for batch, seed in columns:
+                table.add_column(f"{batch.removeprefix('batch_')}/{seed}", no_wrap=True)
+            experiments = dict.fromkeys(name for module in BATCH_MODULES.values() for name in module.EXPERIMENTS)
+            for experiment in experiments:
+                cells = [self.runs.get(run_key(batch, experiment, seed)) for batch, seed in columns]
+                table.add_row(experiment, *(self.cell(run) if run else Text("") for run in cells))
 
             counts = Counter(LABELS.get(run["status"], run["status"]) for run in self.runs.values())
             last_poll = f"{datetime.fromtimestamp(self.last_poll):%H:%M:%S}" if self.last_poll else "-"
             next_poll = f"{max(0, self.next_poll - time.time()):.0f}s" if self.next_poll else "polling now"
             local = self.select(lambda run: run["backend"] == LOCAL and run["status"] == RUNNING)
             local_text = ("off" if not self.use_local else "disabled after a docker failure" if self.local_broken
-                          else f"{local[0]['experiment']} seed {local[0]['seed']}" if local else "idle")
+                          else run_name(local[0]) if local else "idle")
             lines = [
+                Text("Columns are batch/seed. " + "  ".join(f"{batch}: {module.OPTIMIZER}" for batch, module in BATCH_MODULES.items())),
                 Text(f"Last poll {last_poll}   next poll in {next_poll}"),
                 Text("  ".join(f"{name}: {count}" for name, count in sorted(counts.items()))),
                 Text(f"This PC: {local_text}"),
             ]
-            for run in self.runs.values():
-                if run["status"] in FAILURES:
-                    lines.append(Text(f"{run['experiment']} seed {run['seed']} {run['status']}: {run['detail']}", style="red"))
+            failed = [run for run in self.runs.values() if run["status"] in FAILURES]
+            for run in failed[:MAX_FAILURE_LINES]:
+                lines.append(Text(f"{run_name(run)} {run['status']}: {run['detail']}", style="red"))
+            if len(failed) > MAX_FAILURE_LINES:
+                lines.append(Text(f"... and {len(failed) - MAX_FAILURE_LINES} more failed, see {LOG_PATH}", style="red"))
             lines += [Text(error, style="yellow", overflow="fold") for error in self.errors]
         return Group(table, *lines)
 

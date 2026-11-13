@@ -1,6 +1,9 @@
-# Only the training code goes into the image. results/ alone is tens of GB.
+# Only the training and analysis code goes into the image. results/ alone is tens of GB.
 *
-!exp_*.py
+!batch_*.py
 !training_procedure.py
 !networks.py
 !util.py
+!analysis/
+!analysis/*.py
+analysis/__pycache__/

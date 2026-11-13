@@ -15,14 +15,21 @@ fk_around_and_find_out/
 ├── CnnExperimentOne/
 │   ├── README.md          # what is being tested, how to run, findings
 │   ├── network.py
-│   ├── exp_01.py          # entry point, one per ablation
-│   ├── exp_02.py
-│   ├── graph_utils.py
+│   ├── training_procedure.py
+│   ├── batch_01.py        # entry point, one per batch: shared settings + the sweep of experiments
+│   ├── batch_02.py
+│   ├── analysis/          # graphing and evaluation scripts, run with `python -m analysis.<script>`
+│   │   ├── __init__.py
+│   │   └── graph_xxx.py
 │   └── results/
-│       ├── exp_01/
-│       │   └── seed_42/   # generated plots / images / logs for this script and seed
-│       └── exp_02/
-│           └── seed_42/
+│       ├── archive/       # optional: old outputs worth keeping
+│       ├── batch_01/      # batch-level outputs: graphs, evaluation CSVs
+│       │   └── experiments/
+│       │       ├── exp_01/
+│       │       │   └── seed_42/   # logs / checkpoints / per-run plots for this experiment and seed
+│       │       └── exp_02/
+│       │           └── seed_42/
+│       └── batch_02/
 └── <NextExperiment>/
     └── ...
 ```
@@ -46,15 +53,25 @@ fk_around_and_find_out/
   module. Changing one experiment must never break another.
 - **Run from inside the folder.** Use relative imports/paths that assume the working
   directory is the experiment folder, e.g.
-  `cd CnnExperimentOne && conda run -n experiments python exp_01.py`.
+  `cd CnnExperimentOne && conda run -n experiments python batch_01.py --experiment exp_01`.
 - **Results stay local.** Write generated images, plots and logs to that experiment's
   `results/` folder (create it if missing). Never write output outside the experiment folder
   (downloads into `datasets/` are the only exception).
-- **One script per ablation.** Each ablation gets its own script (`exp_01.py`, `exp_02.py`, ...),
-  with its settings as constants in the file rather than command-line options. Every script takes
-  a `--seed` int argument, defaulting to 42.
-- **Results folder structure.** Each run writes to `results/<script name>/seed_<seed>/`, e.g.
-  `results/exp_01/seed_42/`, so runs with different seeds never overwrite each other.
+- **One script per batch.** Experiments are grouped into batches, one script each (`batch_01.py`,
+  `batch_02.py`, ...). A batch script holds the settings its experiments share as constants in the
+  file (not command-line options), plus a sweep that generates its experiments (`exp_01`, `exp_02`,
+  ... -> what varies between them). It runs one experiment per call, chosen with `--experiment`,
+  and takes a `--seed` int argument, defaulting to 42. A new set of ablations is a new batch;
+  don't edit a batch whose results you keep. Batch scripts are near-duplicates by design: don't
+  import one batch from another.
+- **Results folder structure.** Each run writes to `results/<batch>/experiments/<experiment>/seed_<seed>/`,
+  e.g. `results/batch_01/experiments/exp_01/seed_42/`, so runs with different seeds never overwrite
+  each other. Outputs about a whole batch (comparison graphs, evaluation CSVs) go in `results/<batch>/`.
+  Old outputs worth keeping can go in `results/archive/`.
+- **Analysis in its own folder.** Graphing and evaluation scripts live in the experiment's
+  `analysis/` folder (with an empty `__init__.py`) and run from the experiment folder as
+  `python -m analysis.<script> <batch>`, so they can import the experiment's modules and batch
+  files. Helpers shared between them go in `analysis/common.py`.
 - **One shared environment.** All experiments run in the `experiments` conda env
   (`conda activate experiments`, or `conda run -n experiments python exp_01.py`).
   Don't create per-experiment envs or venvs. The env is defined by the root

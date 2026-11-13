@@ -1,0 +1,155 @@
+Downloading cifar10 dataset...
+Train set size: 50000, Test set size: 10000
+/app/util.py:100: UserWarning: Specified kernel cache directory could not be created! This disables kernel caching. Specified directory is //.cache/torch/kernels. This warning will appear only once per process. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/cuda/jit_utils.cpp:1503.)
+  effective_rank = torch.special.entr(p).sum().exp().item()
+epoch  1/150  train loss 1.6820 acc 0.3847  test loss 1.7355 acc 0.3713  blurred test loss 1.4747 acc 0.4597  (trained on blurred images)
+epoch  2/150  train loss 1.3927 acc 0.4973  test loss 2.0696 acc 0.3545  blurred test loss 1.2370 acc 0.5574  (trained on blurred images)
+epoch  3/150  train loss 1.2270 acc 0.5591  test loss 3.0786 acc 0.2461  blurred test loss 1.1766 acc 0.5836  (trained on blurred images)
+epoch  4/150  train loss 1.0981 acc 0.6109  test loss 3.6258 acc 0.2232  blurred test loss 1.0433 acc 0.6335  (trained on blurred images)
+epoch  5/150  train loss 0.9973 acc 0.6459  test loss 4.8488 acc 0.1637  blurred test loss 1.0082 acc 0.6521  (trained on blurred images)
+epoch  6/150  train loss 0.9127 acc 0.6801  test loss 3.4331 acc 0.2808  blurred test loss 0.9294 acc 0.6733  (trained on blurred images)
+epoch  7/150  train loss 0.8497 acc 0.7012  test loss 4.6834 acc 0.1524  blurred test loss 0.8589 acc 0.7007  (trained on blurred images)
+epoch  8/150  train loss 0.8061 acc 0.7174  test loss 4.7035 acc 0.2153  blurred test loss 0.8117 acc 0.7171  (trained on blurred images)
+epoch  9/150  train loss 0.7588 acc 0.7353  test loss 8.2710 acc 0.1316  blurred test loss 0.8498 acc 0.7190  (trained on blurred images)
+epoch 10/150  train loss 0.7137 acc 0.7501  test loss 8.3926 acc 0.1574  blurred test loss 0.7841 acc 0.7280  (trained on blurred images)
+epoch 11/150  train loss 0.6189 acc 0.7836  test loss 0.6736 acc 0.7747  blurred test loss 1.9592 acc 0.4370
+epoch 12/150  train loss 0.5416 acc 0.8115  test loss 0.6053 acc 0.7946  blurred test loss 2.2853 acc 0.3762
+epoch 13/150  train loss 0.4892 acc 0.8284  test loss 0.5984 acc 0.7975  blurred test loss 2.7515 acc 0.3084
+epoch 14/150  train loss 0.4527 acc 0.8414  test loss 0.5533 acc 0.8140  blurred test loss 2.0205 acc 0.4064
+epoch 15/150  train loss 0.4162 acc 0.8538  test loss 0.5287 acc 0.8291  blurred test loss 2.9759 acc 0.3160
+epoch 16/150  train loss 0.3866 acc 0.8640  test loss 0.5651 acc 0.8204  blurred test loss 2.8666 acc 0.3010
+epoch 17/150  train loss 0.3621 acc 0.8726  test loss 0.5008 acc 0.8410  blurred test loss 2.5242 acc 0.3824
+epoch 18/150  train loss 0.3353 acc 0.8828  test loss 0.4723 acc 0.8450  blurred test loss 3.0460 acc 0.2975
+epoch 19/150  train loss 0.3137 acc 0.8898  test loss 0.4836 acc 0.8440  blurred test loss 3.0550 acc 0.3233
+epoch 20/150  train loss 0.2933 acc 0.8978  test loss 0.4941 acc 0.8462  blurred test loss 2.8673 acc 0.3353
+epoch 21/150  train loss 0.2736 acc 0.9031  test loss 0.5346 acc 0.8375  blurred test loss 2.6246 acc 0.3567
+epoch 22/150  train loss 0.2587 acc 0.9086  test loss 0.4429 acc 0.8631  blurred test loss 3.6495 acc 0.2732
+epoch 23/150  train loss 0.2420 acc 0.9145  test loss 0.4365 acc 0.8664  blurred test loss 3.3465 acc 0.3035
+epoch 24/150  train loss 0.2270 acc 0.9196  test loss 0.4459 acc 0.8657  blurred test loss 3.7688 acc 0.2931
+epoch 25/150  train loss 0.2141 acc 0.9256  test loss 0.4749 acc 0.8609  blurred test loss 3.6868 acc 0.2858
+epoch 26/150  train loss 0.1998 acc 0.9297  test loss 0.4318 acc 0.8694  blurred test loss 3.6798 acc 0.2773
+epoch 27/150  train loss 0.1925 acc 0.9326  test loss 0.4676 acc 0.8639  blurred test loss 4.3196 acc 0.2451
+epoch 28/150  train loss 0.1784 acc 0.9367  test loss 0.4944 acc 0.8547  blurred test loss 4.4485 acc 0.2395
+epoch 29/150  train loss 0.1666 acc 0.9417  test loss 0.4443 acc 0.8714  blurred test loss 4.4216 acc 0.2595
+epoch 30/150  train loss 0.1591 acc 0.9436  test loss 0.4586 acc 0.8724  blurred test loss 4.6853 acc 0.2644
+epoch 31/150  train loss 0.1454 acc 0.9483  test loss 0.4564 acc 0.8715  blurred test loss 4.9673 acc 0.2593
+epoch 32/150  train loss 0.1423 acc 0.9499  test loss 0.4235 acc 0.8792  blurred test loss 4.7091 acc 0.2783
+epoch 33/150  train loss 0.1341 acc 0.9516  test loss 0.4409 acc 0.8824  blurred test loss 5.4411 acc 0.2413
+epoch 34/150  train loss 0.1244 acc 0.9562  test loss 0.4438 acc 0.8784  blurred test loss 5.1471 acc 0.2603
+epoch 35/150  train loss 0.1189 acc 0.9572  test loss 0.4806 acc 0.8730  blurred test loss 5.4917 acc 0.2518
+epoch 36/150  train loss 0.1121 acc 0.9605  test loss 0.4820 acc 0.8816  blurred test loss 5.4232 acc 0.2562
+epoch 37/150  train loss 0.1065 acc 0.9615  test loss 0.4856 acc 0.8726  blurred test loss 4.4937 acc 0.2738
+epoch 38/150  train loss 0.0979 acc 0.9657  test loss 0.4567 acc 0.8863  blurred test loss 5.0517 acc 0.2529
+epoch 39/150  train loss 0.0978 acc 0.9648  test loss 0.4335 acc 0.8899  blurred test loss 4.8966 acc 0.2677
+epoch 40/150  train loss 0.0895 acc 0.9688  test loss 0.4530 acc 0.8850  blurred test loss 6.3524 acc 0.2146
+epoch 41/150  train loss 0.0868 acc 0.9696  test loss 0.4707 acc 0.8860  blurred test loss 6.4298 acc 0.2491
+epoch 42/150  train loss 0.0867 acc 0.9687  test loss 0.4989 acc 0.8808  blurred test loss 4.4771 acc 0.2896
+epoch 43/150  train loss 0.0790 acc 0.9721  test loss 0.4723 acc 0.8840  blurred test loss 5.8575 acc 0.2549
+epoch 44/150  train loss 0.0783 acc 0.9720  test loss 0.5492 acc 0.8752  blurred test loss 5.9977 acc 0.2580
+epoch 45/150  train loss 0.0715 acc 0.9752  test loss 0.4819 acc 0.8895  blurred test loss 6.0894 acc 0.2389
+epoch 46/150  train loss 0.0655 acc 0.9768  test loss 0.4730 acc 0.8901  blurred test loss 5.5761 acc 0.2629
+epoch 47/150  train loss 0.0650 acc 0.9777  test loss 0.4563 acc 0.8959  blurred test loss 5.3664 acc 0.2760
+epoch 48/150  train loss 0.0635 acc 0.9769  test loss 0.4787 acc 0.8896  blurred test loss 5.8714 acc 0.2384
+epoch 49/150  train loss 0.0599 acc 0.9787  test loss 0.5209 acc 0.8835  blurred test loss 6.4367 acc 0.2555
+epoch 50/150  train loss 0.0575 acc 0.9798  test loss 0.4640 acc 0.8967  blurred test loss 6.0654 acc 0.2436
+epoch 51/150  train loss 0.0564 acc 0.9800  test loss 0.5380 acc 0.8833  blurred test loss 5.4257 acc 0.2784
+epoch 52/150  train loss 0.0495 acc 0.9832  test loss 0.4889 acc 0.8943  blurred test loss 6.2286 acc 0.2575
+epoch 53/150  train loss 0.0435 acc 0.9849  test loss 0.5044 acc 0.8938  blurred test loss 5.8565 acc 0.2621
+epoch 54/150  train loss 0.0486 acc 0.9834  test loss 0.5092 acc 0.8925  blurred test loss 6.2104 acc 0.2636
+epoch 55/150  train loss 0.0455 acc 0.9839  test loss 0.4900 acc 0.8938  blurred test loss 6.7387 acc 0.2371
+epoch 56/150  train loss 0.0402 acc 0.9861  test loss 0.5074 acc 0.8948  blurred test loss 5.8227 acc 0.2635
+epoch 57/150  train loss 0.0411 acc 0.9855  test loss 0.5241 acc 0.8902  blurred test loss 6.4394 acc 0.2332
+epoch 58/150  train loss 0.0380 acc 0.9870  test loss 0.5001 acc 0.8971  blurred test loss 7.2812 acc 0.2331
+epoch 59/150  train loss 0.0358 acc 0.9874  test loss 0.5221 acc 0.8993  blurred test loss 5.6851 acc 0.2759
+epoch 60/150  train loss 0.0398 acc 0.9862  test loss 0.5127 acc 0.8957  blurred test loss 6.4387 acc 0.2680
+epoch 61/150  train loss 0.0396 acc 0.9860  test loss 0.5353 acc 0.8912  blurred test loss 6.9055 acc 0.2408
+epoch 62/150  train loss 0.0319 acc 0.9886  test loss 0.5105 acc 0.8954  blurred test loss 6.6213 acc 0.2534
+epoch 63/150  train loss 0.0304 acc 0.9891  test loss 0.5026 acc 0.9008  blurred test loss 7.1266 acc 0.2357
+epoch 64/150  train loss 0.0297 acc 0.9898  test loss 0.5281 acc 0.8963  blurred test loss 6.9802 acc 0.2355
+epoch 65/150  train loss 0.0297 acc 0.9892  test loss 0.5367 acc 0.8984  blurred test loss 6.4781 acc 0.2579
+epoch 66/150  train loss 0.0325 acc 0.9890  test loss 0.5499 acc 0.8938  blurred test loss 6.8911 acc 0.2514
+epoch 67/150  train loss 0.0287 acc 0.9898  test loss 0.5522 acc 0.8955  blurred test loss 6.3519 acc 0.2693
+epoch 68/150  train loss 0.0286 acc 0.9903  test loss 0.5271 acc 0.8984  blurred test loss 6.5346 acc 0.2615
+epoch 69/150  train loss 0.0278 acc 0.9908  test loss 0.5416 acc 0.8967  blurred test loss 8.1941 acc 0.2219
+epoch 70/150  train loss 0.0263 acc 0.9907  test loss 0.5433 acc 0.8950  blurred test loss 7.3981 acc 0.2642
+epoch 71/150  train loss 0.0242 acc 0.9917  test loss 0.5822 acc 0.8949  blurred test loss 6.1162 acc 0.2843
+epoch 72/150  train loss 0.0250 acc 0.9913  test loss 0.5297 acc 0.9002  blurred test loss 7.7314 acc 0.2613
+epoch 73/150  train loss 0.0270 acc 0.9901  test loss 0.5583 acc 0.8956  blurred test loss 6.9638 acc 0.2703
+epoch 74/150  train loss 0.0253 acc 0.9909  test loss 0.5596 acc 0.8971  blurred test loss 6.1602 acc 0.2902
+epoch 75/150  train loss 0.0208 acc 0.9924  test loss 0.5155 acc 0.9025  blurred test loss 7.1362 acc 0.2505
+epoch 76/150  train loss 0.0200 acc 0.9932  test loss 0.5660 acc 0.9000  blurred test loss 6.7994 acc 0.2688
+epoch 77/150  train loss 0.0221 acc 0.9923  test loss 0.5662 acc 0.8990  blurred test loss 6.5210 acc 0.2787
+epoch 78/150  train loss 0.0198 acc 0.9935  test loss 0.5326 acc 0.9050  blurred test loss 7.9446 acc 0.2449
+epoch 79/150  train loss 0.0180 acc 0.9939  test loss 0.5354 acc 0.9003  blurred test loss 7.8996 acc 0.2496
+epoch 80/150  train loss 0.0208 acc 0.9928  test loss 0.5528 acc 0.9003  blurred test loss 6.6797 acc 0.2692
+epoch 81/150  train loss 0.0202 acc 0.9931  test loss 0.5615 acc 0.9020  blurred test loss 8.2544 acc 0.2484
+epoch 82/150  train loss 0.0196 acc 0.9936  test loss 0.5657 acc 0.9006  blurred test loss 8.1831 acc 0.2579
+epoch 83/150  train loss 0.0207 acc 0.9931  test loss 0.5524 acc 0.8999  blurred test loss 8.3366 acc 0.2346
+epoch 84/150  train loss 0.0207 acc 0.9925  test loss 0.5588 acc 0.9022  blurred test loss 8.2067 acc 0.2263
+epoch 85/150  train loss 0.0176 acc 0.9940  test loss 0.5291 acc 0.9051  blurred test loss 7.5529 acc 0.2542
+epoch 86/150  train loss 0.0146 acc 0.9948  test loss 0.5357 acc 0.9016  blurred test loss 7.8286 acc 0.2250
+epoch 87/150  train loss 0.0150 acc 0.9949  test loss 0.5600 acc 0.9021  blurred test loss 9.5746 acc 0.2173
+epoch 88/150  train loss 0.0149 acc 0.9948  test loss 0.5921 acc 0.8991  blurred test loss 10.0005 acc 0.2304
+epoch 89/150  train loss 0.0141 acc 0.9953  test loss 0.5646 acc 0.9023  blurred test loss 9.1651 acc 0.2315
+epoch 90/150  train loss 0.0113 acc 0.9961  test loss 0.5571 acc 0.9035  blurred test loss 10.2988 acc 0.2200
+epoch 91/150  train loss 0.0112 acc 0.9963  test loss 0.5502 acc 0.9049  blurred test loss 8.8348 acc 0.2381
+epoch 92/150  train loss 0.0117 acc 0.9962  test loss 0.5826 acc 0.9013  blurred test loss 8.9196 acc 0.2346
+epoch 93/150  train loss 0.0123 acc 0.9961  test loss 0.5344 acc 0.9043  blurred test loss 7.8796 acc 0.2529
+epoch 94/150  train loss 0.0115 acc 0.9959  test loss 0.5538 acc 0.9029  blurred test loss 9.7247 acc 0.2284
+epoch 95/150  train loss 0.0109 acc 0.9964  test loss 0.5558 acc 0.9055  blurred test loss 10.1805 acc 0.2278
+epoch 96/150  train loss 0.0129 acc 0.9957  test loss 0.5753 acc 0.9019  blurred test loss 9.7946 acc 0.2111
+epoch 97/150  train loss 0.0121 acc 0.9960  test loss 0.5732 acc 0.9037  blurred test loss 9.6479 acc 0.2314
+epoch 98/150  train loss 0.0138 acc 0.9953  test loss 0.5826 acc 0.9049  blurred test loss 8.0298 acc 0.2527
+epoch 99/150  train loss 0.0122 acc 0.9958  test loss 0.5558 acc 0.9062  blurred test loss 8.6458 acc 0.2443
+epoch 100/150  train loss 0.0129 acc 0.9956  test loss 0.5503 acc 0.9045  blurred test loss 10.1441 acc 0.2183
+epoch 101/150  train loss 0.0111 acc 0.9960  test loss 0.6056 acc 0.9022  blurred test loss 9.1671 acc 0.2312
+epoch 102/150  train loss 0.0123 acc 0.9959  test loss 0.5905 acc 0.9032  blurred test loss 8.2680 acc 0.2462
+epoch 103/150  train loss 0.0115 acc 0.9963  test loss 0.5902 acc 0.9044  blurred test loss 10.5448 acc 0.2322
+epoch 104/150  train loss 0.0147 acc 0.9951  test loss 0.6039 acc 0.9009  blurred test loss 10.4219 acc 0.2289
+epoch 105/150  train loss 0.0118 acc 0.9958  test loss 0.5988 acc 0.9045  blurred test loss 10.4801 acc 0.2093
+epoch 106/150  train loss 0.0133 acc 0.9956  test loss 0.6002 acc 0.9052  blurred test loss 10.5583 acc 0.2189
+epoch 107/150  train loss 0.0092 acc 0.9967  test loss 0.5944 acc 0.9039  blurred test loss 10.0825 acc 0.2337
+epoch 108/150  train loss 0.0080 acc 0.9973  test loss 0.5769 acc 0.9065  blurred test loss 8.6588 acc 0.2309
+epoch 109/150  train loss 0.0094 acc 0.9970  test loss 0.5844 acc 0.9070  blurred test loss 9.2816 acc 0.2385
+epoch 110/150  train loss 0.0093 acc 0.9972  test loss 0.5809 acc 0.9056  blurred test loss 11.1661 acc 0.1987
+epoch 111/150  train loss 0.0081 acc 0.9974  test loss 0.6041 acc 0.9038  blurred test loss 9.4721 acc 0.2411
+epoch 112/150  train loss 0.0088 acc 0.9970  test loss 0.6081 acc 0.9050  blurred test loss 9.6491 acc 0.2472
+epoch 113/150  train loss 0.0097 acc 0.9968  test loss 0.5980 acc 0.9023  blurred test loss 10.4084 acc 0.2381
+epoch 114/150  train loss 0.0095 acc 0.9968  test loss 0.5897 acc 0.9036  blurred test loss 9.8589 acc 0.2362
+epoch 115/150  train loss 0.0112 acc 0.9962  test loss 0.6053 acc 0.9048  blurred test loss 11.0708 acc 0.2252
+epoch 116/150  train loss 0.0091 acc 0.9968  test loss 0.5897 acc 0.9066  blurred test loss 9.3851 acc 0.2438
+epoch 117/150  train loss 0.0116 acc 0.9960  test loss 0.5836 acc 0.9052  blurred test loss 9.4933 acc 0.2472
+epoch 118/150  train loss 0.0088 acc 0.9970  test loss 0.6102 acc 0.9086  blurred test loss 10.4451 acc 0.2371
+epoch 119/150  train loss 0.0081 acc 0.9971  test loss 0.5865 acc 0.9030  blurred test loss 8.7214 acc 0.2702
+epoch 120/150  train loss 0.0102 acc 0.9966  test loss 0.6069 acc 0.9039  blurred test loss 9.1695 acc 0.2438
+epoch 121/150  train loss 0.0078 acc 0.9976  test loss 0.5708 acc 0.9103  blurred test loss 11.4795 acc 0.2274
+epoch 122/150  train loss 0.0066 acc 0.9979  test loss 0.5815 acc 0.9065  blurred test loss 10.2177 acc 0.2362
+epoch 123/150  train loss 0.0069 acc 0.9978  test loss 0.6009 acc 0.9082  blurred test loss 9.1570 acc 0.2647
+epoch 124/150  train loss 0.0077 acc 0.9974  test loss 0.5894 acc 0.9078  blurred test loss 8.6859 acc 0.2865
+epoch 125/150  train loss 0.0057 acc 0.9983  test loss 0.5860 acc 0.9086  blurred test loss 10.2066 acc 0.2552
+epoch 126/150  train loss 0.0065 acc 0.9978  test loss 0.6261 acc 0.9042  blurred test loss 10.9795 acc 0.2296
+epoch 127/150  train loss 0.0074 acc 0.9976  test loss 0.6355 acc 0.9033  blurred test loss 11.8533 acc 0.2355
+epoch 128/150  train loss 0.0084 acc 0.9967  test loss 0.6083 acc 0.9070  blurred test loss 8.9822 acc 0.2618
+epoch 129/150  train loss 0.0080 acc 0.9975  test loss 0.6069 acc 0.9067  blurred test loss 11.8473 acc 0.2188
+epoch 130/150  train loss 0.0077 acc 0.9975  test loss 0.6486 acc 0.9010  blurred test loss 10.2200 acc 0.2416
+epoch 131/150  train loss 0.0082 acc 0.9972  test loss 0.6071 acc 0.9042  blurred test loss 8.6433 acc 0.2620
+epoch 132/150  train loss 0.0090 acc 0.9973  test loss 0.6130 acc 0.9042  blurred test loss 10.0739 acc 0.2372
+epoch 133/150  train loss 0.0057 acc 0.9984  test loss 0.5957 acc 0.9083  blurred test loss 9.9045 acc 0.2231
+epoch 134/150  train loss 0.0059 acc 0.9982  test loss 0.6067 acc 0.9057  blurred test loss 9.9961 acc 0.2388
+epoch 135/150  train loss 0.0050 acc 0.9983  test loss 0.6175 acc 0.9076  blurred test loss 10.0671 acc 0.2471
+epoch 136/150  train loss 0.0072 acc 0.9974  test loss 0.6223 acc 0.9066  blurred test loss 9.1592 acc 0.2515
+epoch 137/150  train loss 0.0056 acc 0.9982  test loss 0.6180 acc 0.9087  blurred test loss 9.5616 acc 0.2486
+epoch 138/150  train loss 0.0062 acc 0.9980  test loss 0.6517 acc 0.9054  blurred test loss 9.9671 acc 0.2386
+epoch 139/150  train loss 0.0055 acc 0.9984  test loss 0.6127 acc 0.9059  blurred test loss 9.6678 acc 0.2488
+epoch 140/150  train loss 0.0064 acc 0.9978  test loss 0.6053 acc 0.9071  blurred test loss 9.6737 acc 0.2351
+epoch 141/150  train loss 0.0055 acc 0.9983  test loss 0.6169 acc 0.9086  blurred test loss 10.5636 acc 0.2471
+epoch 142/150  train loss 0.0057 acc 0.9981  test loss 0.6035 acc 0.9081  blurred test loss 9.1402 acc 0.2596
+epoch 143/150  train loss 0.0055 acc 0.9983  test loss 0.5885 acc 0.9092  blurred test loss 9.9709 acc 0.2584
+epoch 144/150  train loss 0.0044 acc 0.9985  test loss 0.6126 acc 0.9076  blurred test loss 10.5351 acc 0.2519
+epoch 145/150  train loss 0.0056 acc 0.9981  test loss 0.6035 acc 0.9058  blurred test loss 11.0701 acc 0.2335
+epoch 146/150  train loss 0.0055 acc 0.9981  test loss 0.6234 acc 0.9046  blurred test loss 11.7132 acc 0.2242
+epoch 147/150  train loss 0.0046 acc 0.9985  test loss 0.6074 acc 0.9067  blurred test loss 10.1197 acc 0.2499
+epoch 148/150  train loss 0.0075 acc 0.9975  test loss 0.6197 acc 0.9078  blurred test loss 9.7679 acc 0.2474
+epoch 149/150  train loss 0.0056 acc 0.9983  test loss 0.5996 acc 0.9093  blurred test loss 8.8423 acc 0.2559
+epoch 150/150  train loss 0.0041 acc 0.9987  test loss 0.5836 acc 0.9112  blurred test loss 9.6990 acc 0.2460
+logs written to /workspace/output/batch_02/experiments/exp_03/seed_42/tensorboard
