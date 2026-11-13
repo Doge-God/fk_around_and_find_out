@@ -1,0 +1,13 @@
+mkdir -p failed for path /.config/matplotlib: [Errno 13] Permission denied: '/.config'
+Matplotlib created a temporary cache directory at /tmp/matplotlib-ycsau7u3 because there was an issue with the default path (/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+batch_02: evaluating 5 epoch 150 checkpoints at 31 blur sigmas on cuda
+Downloading cifar10 dataset...
+Train set size: 50000, Test set size: 10000
+/app/util.py:100: UserWarning: Specified kernel cache directory could not be created! This disables kernel caching. Specified directory is //.cache/torch/kernels. This warning will appear only once per process. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/cuda/jit_utils.cpp:1503.)
+  effective_rank = torch.special.entr(p).sum().exp().item()
+[1/5] exp_16 seed 42 done, accuracy 0.929 sharp, elapsed 0m18s, about 1m15s left
+[2/5] exp_16 seed 43 done, accuracy 0.929 sharp, elapsed 0m37s, about 0m56s left
+[3/5] exp_16 seed 44 done, accuracy 0.924 sharp, elapsed 0m56s, about 0m37s left
+[4/5] exp_16 seed 45 done, accuracy 0.931 sharp, elapsed 1m15s, about 0m18s left
+[5/5] exp_16 seed 46 done, accuracy 0.932 sharp, elapsed 1m33s, about 0m00s left
+saved /workspace/output/batch_02/eval_blur.csv
